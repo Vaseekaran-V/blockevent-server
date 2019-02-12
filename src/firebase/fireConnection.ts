@@ -9,7 +9,6 @@ let config = {
   databaseURL: process.env.DATABASEURL,
   projectId: process.env.PROJECTID,
   storageBucket: process.env.STORAGEBUCKET,
-  messagingSenderId: process.env.MESSAGINGSENDERID
 };
 
 firebase.initializeApp(config);

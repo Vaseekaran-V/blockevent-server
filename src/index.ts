@@ -3,7 +3,6 @@ import express = require("express");
 import * as apiRoutes from "./routes/routes";
 import * as dotenv from "dotenv";
 import cors from "cors";
-import * as cron from 'node-cron';
 // import { requestHandler } from "./controllers/requestMatcher";
 
 // import { CollectionReference } from "@google-cloud/firestore";
@@ -25,8 +24,8 @@ app.use(function(req, res, next) {
     next();
   });
   app.use(cors({
-    "origin": "tickety-f0da3.firebaseapp.com",
-    // "origin": "http://localhost:4200",
+    // "origin": "tickety-f0da3.firebaseapp.com",
+    "origin": "http://localhost:4200",
     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
     "preflightContinue": false,
     "optionsSuccessStatus": 204
