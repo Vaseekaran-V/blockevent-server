@@ -61,7 +61,7 @@ export namespace userController {
                 });
         }
 
-        public signUserTicket(req: Request, res: Response, next: NextFunction): Promise<any> {
+        public signUserTicket(req: Request, res: Response, next: NextFunction) {
             // var userId = firebase.auth().currentUser.uid;
             console.log(req.body);
             const sourceKeypair = Keypair.fromSecret('SCRQA4B4EGD463RMX4ZCSW56S6QIOUQG5BHSPNE6XRSOEBKB5RSLD7NG');
@@ -71,31 +71,32 @@ export namespace userController {
                 parsedTx.sign(sourceKeypair)
                 let x = parsedTx.toEnvelope().toXDR().toString('base64')
                 console.log(x);
-                var obj;
+                var obj = {
+                    //@ts-ignore
+                    'status': '205',
+                    //@ts-ignore
+                    'statusText': 'Error in request body',
+                };
 
                 server.submitTransaction(parsedTx)
                     .then(function (transactionResult) {
+                        console.log(transactionResult);
 
-                        obj = {
-                            //@ts-ignore
-                            'status': transactionResult.response.status,
-                            //@ts-ignore
-                            'statusText': transactionResult.response.statusText,
+                        obj.status = '201';
+                        obj.statusText = 'Success';
 
-                        }
+                        res.send(obj);
 
-                        //@ts-ignore
-                        console.log(transactionResult.response.status);
-                        //@ts-ignore
-                        console.log(transactionResult.response.statusText);
                     }).catch(function (err) {
-                        console.log(err);
+                        console.log(err.response);
+                        obj.status = '203'
+                        obj.statusText = 'Error submitting to Stellar';
+                        res.send(obj);
+
                     })
 
-
-                return;
             } else {
-                return;
+                res.send(obj);
             }
 
 
