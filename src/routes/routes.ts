@@ -1,5 +1,4 @@
 import { userController } from "../controllers/userController";
-import { requestController } from "../controllers/requestController";
 // import { admin } from '../firebase/admin'
 import * as requestAPI from "./requestAPI";
 import * as reportsAPI from "./reportsAPI";
@@ -24,11 +23,6 @@ const chatkit = new Chatkit.default({
 import { Router, Request, Response, NextFunction } from "express";
 
 const router: Router = Router();
-
-
-router.use("/request", requestAPI.router);
-router.use("/matchedRequest", matchAPI.router);
-router.use("/reports", reportsAPI.router);
 
 
 router.use("/user", userAPI.router);

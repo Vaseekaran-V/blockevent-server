@@ -4,7 +4,7 @@ import * as apiRoutes from "./routes/routes";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import * as cron from 'node-cron';
-import { requestHandler } from "./controllers/requestMatcher";
+// import { requestHandler } from "./controllers/requestMatcher";
 
 // import { CollectionReference } from "@google-cloud/firestore";
 
