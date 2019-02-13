@@ -66,27 +66,48 @@ export namespace userController {
             console.log(req.body);
             const sourceKeypair = Keypair.fromSecret('SCRQA4B4EGD463RMX4ZCSW56S6QIOUQG5BHSPNE6XRSOEBKB5RSLD7NG');
 
+            var obj = {
+                //@ts-ignore
+                'status': '205',
+                //@ts-ignore
+                'statusText': 'Error in request body',
+            };
+
             if (req.body.xdr) {
                 const parsedTx = new Transaction(req.body.xdr)
                 parsedTx.sign(sourceKeypair)
                 let x = parsedTx.toEnvelope().toXDR().toString('base64')
                 console.log(x);
-                var obj = {
-                    //@ts-ignore
-                    'status': '205',
-                    //@ts-ignore
-                    'statusText': 'Error in request body',
-                };
+                // var obj = {
+                //     //@ts-ignore
+                //     'status': '205',
+                //     //@ts-ignore
+                //     'statusText': 'Error in request body',
+                // };
 
                 server.submitTransaction(parsedTx)
                     .then(function (transactionResult) {
-                        console.log(transactionResult);
+                        firebase.database().ref(`tickets/${transactionResult.hash}`)
+                            .set({
+                                eventID: req.body.eventID,
+                                emailhash: req.body.emailHash,
+                                ticketCount: 1,
+                                status: "pending"
+                            }).then(() => {
+                                firebase.database().ref(`users/${req.body.emailHash}/events/${req.body.eventID}`)
+                                    .set({
+                                        ticketID: transactionResult.hash
+                                    }).then(() => {
+                                        console.log(transactionResult);
+                                        obj.status = '201';
+                                        obj.statusText = 'Success';
+                                        res.send(obj);
+                                    }).catch(() => {
 
-                        obj.status = '201';
-                        obj.statusText = 'Success';
+                                    })
+                            }).catch(() => {
 
-                        res.send(obj);
-
+                            })
                     }).catch(function (err) {
                         console.log(err.response);
                         obj.status = '203'
