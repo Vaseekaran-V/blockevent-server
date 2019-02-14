@@ -90,7 +90,7 @@ export namespace userController {
                         firebase.database().ref(`tickets/${transactionResult.hash}`)
                             .set({
                                 eventID: req.body.eventID,
-                                emailhash: req.body.emailHash,
+                                emailHash: req.body.emailHash,
                                 ticketCount: 1,
                                 status: "pending"
                             }).then(() => {
