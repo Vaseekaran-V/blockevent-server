@@ -24,12 +24,9 @@ app.use(function(req, res, next) {
     next();
   });
   app.use(cors({
-    // "origin": "tickety-f0da3.firebaseapp.com",
-    "origin": "*",
     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
     "preflightContinue": false,
     "optionsSuccessStatus": 204
-
   }));
 
 // app.use(bodyParser);
