@@ -64,7 +64,7 @@ export namespace userController {
         public signUserTicket(req: Request, res: Response, next: NextFunction) {
             // var userId = firebase.auth().currentUser.uid;
             console.log(req.body);
-            const sourceKeypair = Keypair.fromSecret('SCRQA4B4EGD463RMX4ZCSW56S6QIOUQG5BHSPNE6XRSOEBKB5RSLD7NG');
+            const sourceKeypair = Keypair.fromSecret('SBVB4S5BUNUNRLMBF7LJC6DQAAGCPHD6KASBJYVNL4SXARAQYMFWA6LB');
 
             var obj = {
                 //@ts-ignore
