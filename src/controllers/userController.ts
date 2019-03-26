@@ -91,6 +91,7 @@ export namespace userController {
                             .set({
                                 eventID: req.body.eventID,
                                 emailHash: req.body.emailHash,
+                                email : req.body.email,
                                 ticketCount: 1,
                                 status: "pending"
                             }).then(() => {
