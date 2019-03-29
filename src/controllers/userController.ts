@@ -75,7 +75,9 @@ export namespace userController {
 
             if (req.body.xdr) {
                 const parsedTx = new Transaction(req.body.xdr)
+                
                 parsedTx.sign(sourceKeypair)
+                let publicKey = parsedTx.source
                 let x = parsedTx.toEnvelope().toXDR().toString('base64')
                 console.log(x);
                 // var obj = {
@@ -93,6 +95,7 @@ export namespace userController {
                                 emailHash: req.body.emailHash,
                                 email : req.body.email,
                                 ticketCount: 1,
+                                publicKey: publicKey,
                                 status: "pending"
                             }).then(() => {
                                 firebase.database().ref(`users/${req.body.emailHash}/events/${req.body.eventID}`)
