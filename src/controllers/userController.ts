@@ -61,6 +61,61 @@ export namespace userController {
                 });
         }
 
+
+        public sendSMSToken(req: Request, res: Response, next: NextFunction) {
+            // var userId = firebase.auth().currentUser.uid;
+
+            axios.post('https://ideabiz.lk/apicall/pin/verify/v1/verify',
+                {
+                    method: 'ANC',
+                    msisdn: req.body.telephone
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer a34edf99db05d1f1ead4423d4992ce9',
+                        'Accept': 'application/json'
+                    }
+                }).then(response => {
+                    console.log(response.data);
+                    res.send(response.data);
+                }).catch(err => {
+                    var obj = {
+                        status: 'sending token failed'
+                    }
+                    console.log(obj);
+                    res.statusCode = 400;
+                    res.send(obj);
+                });
+
+        }
+
+        public verifySMSToken(req: Request, res: Response, next: NextFunction) {
+            // var userId = firebase.auth().currentUser.uid;
+            axios.post('https://ideabiz.lk/apicall/pin/verify/v1/submitPin',
+                {
+                    pin: req.body.pin,
+                    serverRef: req.body.serverRef
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer a34edf99db05d1f1ead4423d4992ce9',
+                        'Accept': 'application/json'
+                    }
+                }).then(response => {
+                    console.log(response.data);
+                    res.send(response.data);
+
+                }).catch(err => {
+                    var obj = {
+                        status: 'verifying token failed'
+                    }
+                    console.log(obj);
+                    res.statusCode = 400;
+                    res.send(obj);
+                });
+
+
+        }
         public signUserTicket(req: Request, res: Response, next: NextFunction) {
             // var userId = firebase.auth().currentUser.uid;
             console.log(req.body);
@@ -75,7 +130,7 @@ export namespace userController {
 
             if (req.body.xdr) {
                 const parsedTx = new Transaction(req.body.xdr)
-                
+
                 parsedTx.sign(sourceKeypair)
                 let publicKey = parsedTx.source
                 let x = parsedTx.toEnvelope().toXDR().toString('base64')
@@ -93,7 +148,7 @@ export namespace userController {
                             .set({
                                 eventID: req.body.eventID,
                                 emailHash: req.body.emailHash,
-                                email : req.body.email,
+                                email: req.body.email,
                                 ticketCount: 1,
                                 publicKey: publicKey,
                                 status: "pending"
