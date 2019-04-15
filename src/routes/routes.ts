@@ -10,6 +10,13 @@ router.get("/getGitUserDetails/:gitID", (req: Request, res: Response, next: Next
 
 });
 
+router.get("/getStackUserDetails/:stackID", (req: Request, res: Response, next: NextFunction) => {
+    const controller = new userController.UserData;
+    controller.getUserStack(req, res, next);
+
+});
+
+
 router.post("/signTicket", (req: Request, res: Response, next: NextFunction) => {
     const controller = new userController.UserData;
     controller.signUserTicket(req, res, next);
