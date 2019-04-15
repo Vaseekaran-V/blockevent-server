@@ -11,54 +11,23 @@ export namespace userController {
     export class UserData {
 
 
-        public writeUserData(req: Request, res: Response, next: NextFunction) {
-            // var userId = firebase.auth().currentUser.uid;
-            const now = new Date();
-            const utc_timestamp = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-            return firebase.database()
-                .ref('users/' + req.body.userId)
-                .set(req.body, function (error) {
-                    if (error) {
-                        res.send({ message: "Failed" });// The write failed...
-                    } else {
-                        res.send({ message: "Success" });
-                        // Data saved successfully!
-                    }
-                });
-        }
-
-
-        public updateUserData(req: Request, res: Response, next: NextFunction) {
-            // var userId = firebase.auth().currentUser.uid;
-
-            // const pushToken=req.body.pushToken;
-            const lol = firebase.database()
-                .ref('users/' + req.body.userId);
-
-            return lol.update(
-                req.body
-                , function (error) {
-                    if (error) {
-                        res.send({ message: "Failed" });// The write failed...
-                    } else {
-                        res.send({ message: "Success" });
-                        // Data saved successfully!
-                    }
-                });
-        }
-
-
-        public getUserData(req: Request, res: Response, next: NextFunction): Promise<any> {
-            // var userId = firebase.auth().currentUser.uid;
-
-            return firebase.database().ref('/users/' + req.params.userId)
-                .once('value')
-                .then(function (snapshot) {
-                    const lol = snapshot.val();
-                    return lol;
-                }).catch(() => {
-                    //console.log("error");
-                });
+        public getUserGitHub(req: Request, res: Response, next: NextFunction) {
+            axios.get(`https://api.github.com/users/${req.params.gitID}`, {
+                params:{
+                  client_id: 'd043583aba9242a12df8',
+                  client_secret: 'f31a713d397670fa4d79eaffade66effb9d91e2d'
+              }
+              }).then(response => {
+                // console.log(response.data);
+                res.send(response.data);              
+            }).catch(err => {
+                var obj = {
+                    status: 'getting dataFailed'
+                }
+                console.log(obj);
+                res.statusCode = 400;
+                res.send(obj);
+              });
         }
 
 
@@ -76,7 +45,7 @@ export namespace userController {
                         'Accept': 'application/json'
                     }
                 }).then(response => {
-                    console.log(response.data);
+                    // console.log(response.data);
                     res.send(response.data);
                 }).catch(err => {
                     var obj = {
@@ -102,7 +71,7 @@ export namespace userController {
                         'Accept': 'application/json'
                     }
                 }).then(response => {
-                    console.log(response.data);
+                    // console.log(response.data);
                     res.send(response.data);
 
                 }).catch(err => {
