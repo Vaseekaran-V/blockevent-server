@@ -34,7 +34,7 @@ router.post("/token", (req, res, next) => {
     var params = {
         TableName: "Users",
         Key: {
-            "email": req.params.email
+            "email": req.body.email
         }
     };
     docClient.get(params, function (err: any, data: any) {

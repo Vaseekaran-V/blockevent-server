@@ -24,8 +24,8 @@ app.use(function(req, res, next) {
     next();
   });
   app.use(cors({
-    "origin": "https://blockevent.tk",
-    // "origin": "http://localhost:4200",    
+    // "origin": "https://blockevent.tk",
+    "origin": "http://localhost:4200",    
     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
     "preflightContinue": false,
     "optionsSuccessStatus": 204
