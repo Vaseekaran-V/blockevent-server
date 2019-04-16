@@ -3,7 +3,9 @@ import { Router, Request, Response, NextFunction } from "express";
 import { ticketRouter } from "./ticketAPI";
 import { userRouter } from "./userAPI";
 import { formRouter } from "./formAPI";
+import { AWS } from '../dao/index';
 
+let docClient = new AWS.DynamoDB.DocumentClient();
 
 var jwt = require('jsonwebtoken');
 
@@ -25,6 +27,27 @@ router.post("/verifyToken", (req: Request, res: Response, next: NextFunction) =>
     const controller = new userController.UserData;
     controller.verifySMSToken(req, res, next);
 
+});
+
+router.post("/token", (req, res, next) => {
+    var params = {
+        TableName: "Users",
+        Key: {
+            "email": req.params.email
+        }
+    };
+    docClient.get(params, function (err: any, data: any) {
+        if (err) {
+            console.log("users::fetchOneByKey::error - " + JSON.stringify(err, null, 2));
+            res.statusCode = 400;
+            res.send({ error: "Email is not authenticated!" });
+        }
+        else {
+            res.statusCode = 200;
+            var token = jwt.sign({ email: req.body.email }, process.env.SECRET);
+            res.send({ token: token });
+        }
+    })
 });
 
 

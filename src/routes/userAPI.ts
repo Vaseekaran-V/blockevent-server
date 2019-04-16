@@ -26,6 +26,17 @@ userRouter.get("/get/:email", (req: Request, res: Response, next: NextFunction) 
     const controller = new userController.UserData;
     controller.GetUser(req, res, next);
 });
+
+
+userRouter.get("/checkAvailability/:email", (req: Request, res: Response, next: NextFunction) => {
+    const controller = new userController.UserData;
+    controller.EmailAvailability(req, res, next);
+});
+
+userRouter.get("/checkMobileNumberAvailability/:mobileNumber", (req: Request, res: Response, next: NextFunction) => {
+    const controller = new userController.UserData;
+    controller.MobileNumberAvailability(req, res, next);
+});
 export { userRouter };
 
 

@@ -116,7 +116,7 @@ export namespace userController {
             };
 
             console.log(paramsG);
-            
+
             docClient.get(paramsG, function (err: any, data: any) {
                 if (err) {
                     res.statusCode = 501;
@@ -131,9 +131,16 @@ export namespace userController {
                         };
                         docClient.put(params, function (err1: any, data1: any) {
                             if (err1) {
+                                console.log(err1);
+
                                 res.statusCode = 500;
                                 res.send({ status: "DB Crashed While Adding New User" });
                             } else {
+                                const params2 = {
+                                    TableName: 'PhoneNumbers',
+                                    Item: {telephone:req.body.telephone,email:req.body.email}
+                                };
+                                docClient.put(params2);
                                 res.statusCode = 200;
                                 res.send({ status: 'User Added Successfully' });
                             }
@@ -147,7 +154,6 @@ export namespace userController {
             })
 
         }
-
         public GetUser(req: Request, res: Response, next: NextFunction) {
             var params = {
                 TableName: "Users",
@@ -165,6 +171,65 @@ export namespace userController {
                     console.log("users::fetchOneByKey::success - " + JSON.stringify(data, null, 2));
                     res.statusCode = 200;
                     res.send(data.Item);
+                }
+            })
+
+        }
+        public EmailAvailability(req: Request, res: Response, next: NextFunction) {
+            //first retrieve to check for dulicates
+            var paramsG = {
+                TableName: "Users",
+                Key: {
+                    "email": req.params.email
+                }
+            };
+            console.log(paramsG);
+
+            docClient.get(paramsG, function (err: any, data: any) {
+                if (err) {
+                    console.log(err)
+                    res.statusCode = 501;
+                    res.send({ status: "DB Crashed while checking whether the user object exists" });
+                }
+                else {
+                    if (JSON.stringify(data.Item, null, 2) == null) {
+                        res.statusCode = 200;
+                        res.send({ available: true });
+
+                    } else {
+                        res.statusCode = 200;
+                        res.send({  available: false });
+                    }
+                }
+            })
+
+        }
+        public MobileNumberAvailability(req: Request, res: Response, next: NextFunction) {
+            //first retrieve to check for dulicates
+            var paramsG = {
+                TableName: "PhoneNumbers",
+                Key: {
+                    "telephone": req.params.mobileNumber
+                }
+            };
+            console.log(paramsG);
+
+            docClient.get(paramsG, function (err: any, data: any) {
+                if (err) {
+                    console.log(err)
+
+                    res.statusCode = 501;
+                    res.send({ status: "DB Crashed while checking whether the user object exists" });
+                }
+                else {
+                    if (JSON.stringify(data.Item, null, 2) == null) {
+                        res.statusCode = 200;
+                        res.send({ available: true });
+
+                    } else {
+                        res.statusCode = 200;
+                        res.send({  available: false });
+                    }
                 }
             })
 
