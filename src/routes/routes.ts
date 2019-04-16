@@ -4,6 +4,7 @@ import { ticketRouter } from "./ticketAPI";
 import { userRouter } from "./userAPI";
 import { formRouter } from "./formAPI";
 import { AWS } from '../dao/index';
+import { auth } from '../middleware/auth';
 
 let docClient = new AWS.DynamoDB.DocumentClient();
 
@@ -12,9 +13,9 @@ var jwt = require('jsonwebtoken');
 const router: Router = Router();
 
 
-router.use("/ticket", ticketRouter);
+router.use("/ticket", auth, ticketRouter);
 router.use("/user", userRouter);
-router.use("/regForm", formRouter);
+router.use("/regForm", auth, formRouter);
 
 
 router.post("/sendToken", (req: Request, res: Response, next: NextFunction) => {
@@ -38,14 +39,19 @@ router.post("/token", (req, res, next) => {
     };
     docClient.get(params, function (err: any, data: any) {
         if (err) {
-            console.log("users::fetchOneByKey::error - " + JSON.stringify(err, null, 2));
-            res.statusCode = 400;
-            res.send({ error: "Email is not authenticated!" });
+            res.statusCode = 500;
+            res.send({ error: "Server Error when retrieving user object" });
         }
         else {
-            res.statusCode = 200;
-            var token = jwt.sign({ email: req.body.email }, process.env.SECRET);
-            res.send({ token: token });
+            if (JSON.stringify(data.Item, null, 2) == null) {
+                res.statusCode = 400;
+                res.send({ error: "Email is not authenticated!" });
+            } else {
+                res.statusCode = 200;
+                var token = jwt.sign({ email: req.body.email }, process.env.SECRET);
+                res.send({ token: token });
+            }
+
         }
     })
 });
