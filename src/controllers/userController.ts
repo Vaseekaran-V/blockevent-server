@@ -1,16 +1,10 @@
-import firebase from '../firebase/fireConnection';
 import { NextFunction, Request, Response } from "express";
-import { Network, Server, Keypair, Asset, TransactionBuilder, Operation, Transaction } from 'stellar-sdk';
-// import { Server, Network, Keypair, Transaction } from "stellar-base";
-var server = new Server('https://horizon-testnet.stellar.org');
-Network.useTestNetwork();
-// import { admin } from '../firebase/admin'
 import axios from 'axios';
+import { AWS } from '../dao/index';
 
+let docClient = new AWS.DynamoDB.DocumentClient();
 export namespace userController {
     export class UserData {
-
-
         public getUserGitHub(req: Request, res: Response, next: NextFunction) {
             axios.get(`https://api.github.com/users/${req.params.gitID}`, {
                 params: {
@@ -39,7 +33,6 @@ export namespace userController {
                 });
             });
         }
-
         public getUserStack(req: Request, res: Response, next: NextFunction) {
             axios.get(`https://api.stackexchange.com/2.2/users/${req.params.stackID}`, {
                 params: {
@@ -60,7 +53,6 @@ export namespace userController {
                 res.send(obj);
             });
         }
-
         public sendSMSToken(req: Request, res: Response, next: NextFunction) {
             // var userId = firebase.auth().currentUser.uid;
 
@@ -87,7 +79,6 @@ export namespace userController {
                 });
 
         }
-
         public verifySMSToken(req: Request, res: Response, next: NextFunction) {
             // var userId = firebase.auth().currentUser.uid;
             axios.post('https://ideabiz.lk/apicall/pin/verify/v1/submitPin',
@@ -115,71 +106,64 @@ export namespace userController {
 
 
         }
-        public signUserTicket(req: Request, res: Response, next: NextFunction) {
-            // var userId = firebase.auth().currentUser.uid;
-            console.log(req.body);
-            const sourceKeypair = Keypair.fromSecret('SBVB4S5BUNUNRLMBF7LJC6DQAAGCPHD6KASBJYVNL4SXARAQYMFWA6LB');
-
-            var obj = {
-                //@ts-ignore
-                'status': '205',
-                //@ts-ignore
-                'statusText': 'Error in request body',
+        public AddUser(req: Request, res: Response, next: NextFunction) {
+            var paramsG = {
+                TableName: "Users",
+                Key: {
+                    "email": req.body.email
+                }
             };
+            docClient.get(paramsG, function (err: any, data: any) {
+                if (err) {
+                    res.statusCode = 400;
+                    res.send(err);
+                }
+                else {
+                    if (JSON.stringify(data.Item, null, 2) == null) {
+                        const params = {
+                            TableName: 'Users',
+                            Item: req.body
+                        };
+                        docClient.put(params, function (err1: any, data1: any) {
+                            if (err1) {
+                                res.statusCode = 400;
+                                res.send(err1);
+                            } else {
+                                res.statusCode = 200;
+                                res.send({ status: 'success' });
+                            }
+                        });
 
-            if (req.body.xdr) {
-                const parsedTx = new Transaction(req.body.xdr)
+                    } else {
+                        res.statusCode = 400;
+                        res.send({ status: "Email Address is Already Registered" });
+                    }
 
-                parsedTx.sign(sourceKeypair)
-                let publicKey = parsedTx.source
-                let x = parsedTx.toEnvelope().toXDR().toString('base64')
-                console.log(x);
-                // var obj = {
-                //     //@ts-ignore
-                //     'status': '205',
-                //     //@ts-ignore
-                //     'statusText': 'Error in request body',
-                // };
-
-                server.submitTransaction(parsedTx)
-                    .then(function (transactionResult) {
-                        firebase.database().ref(`tickets/${transactionResult.hash}`)
-                            .set({
-                                eventID: req.body.eventID,
-                                emailHash: req.body.emailHash,
-                                email: req.body.email,
-                                ticketCount: 1,
-                                publicKey: publicKey,
-                                status: "pending"
-                            }).then(() => {
-                                firebase.database().ref(`users/${req.body.emailHash}/events/${req.body.eventID}`)
-                                    .set({
-                                        ticketID: transactionResult.hash
-                                    }).then(() => {
-                                        console.log(transactionResult);
-                                        obj.status = '201';
-                                        obj.statusText = 'Success';
-                                        res.send(obj);
-                                    }).catch(() => {
-
-                                    })
-                            }).catch(() => {
-
-                            })
-                    }).catch(function (err) {
-                        console.log(err.response);
-                        obj.status = '203'
-                        obj.statusText = 'Error submitting to Stellar';
-                        res.send(obj);
-
-                    })
-
-            } else {
-                res.send(obj);
-            }
-
+                }
+            })
 
         }
 
+        public GetUser(req: Request, res: Response, next: NextFunction) {
+            var params = {
+                TableName: "Users",
+                Key: {
+                    "email": req.params.email
+                }
+            };
+            docClient.get(params, function (err: any, data: any) {
+                if (err) {
+                    console.log("users::fetchOneByKey::error - " + JSON.stringify(err, null, 2));
+                    res.statusCode = 400;
+                    res.send(err);
+                }
+                else {
+                    console.log("users::fetchOneByKey::success - " + JSON.stringify(data, null, 2));
+                    res.statusCode = 200;
+                    res.send(data.Item);
+                }
+            })
+
+        }
     }
 }

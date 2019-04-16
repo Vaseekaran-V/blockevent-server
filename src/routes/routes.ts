@@ -1,27 +1,17 @@
 import { userController } from "../controllers/userController";
 import { Router, Request, Response, NextFunction } from "express";
+import { ticketRouter } from "./ticketAPI";
+import { userRouter } from "./userAPI";
+
+
+var jwt = require('jsonwebtoken');
 
 const router: Router = Router();
 
 
-router.get("/getGitUserDetails/:gitID", (req: Request, res: Response, next: NextFunction) => {
-    const controller = new userController.UserData;
-    controller.getUserGitHub(req, res, next);
+router.use("/ticket", ticketRouter);
+router.use("/user", userRouter);
 
-});
-
-router.get("/getStackUserDetails/:stackID", (req: Request, res: Response, next: NextFunction) => {
-    const controller = new userController.UserData;
-    controller.getUserStack(req, res, next);
-
-});
-
-
-router.post("/signTicket", (req: Request, res: Response, next: NextFunction) => {
-    const controller = new userController.UserData;
-    controller.signUserTicket(req, res, next);
-
-});
 
 router.post("/sendToken", (req: Request, res: Response, next: NextFunction) => {
     const controller = new userController.UserData;
@@ -35,4 +25,6 @@ router.post("/verifyToken", (req: Request, res: Response, next: NextFunction) =>
 
 });
 
+
 export { router };
+
