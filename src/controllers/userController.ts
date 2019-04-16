@@ -107,38 +107,42 @@ export namespace userController {
 
         }
         public AddUser(req: Request, res: Response, next: NextFunction) {
+            //first retrieve to check for dulicates
             var paramsG = {
                 TableName: "Users",
                 Key: {
                     "email": req.body.email
                 }
             };
+
+            console.log(paramsG);
+            
             docClient.get(paramsG, function (err: any, data: any) {
                 if (err) {
-                    res.statusCode = 400;
-                    res.send(err);
+                    res.statusCode = 501;
+                    res.send({ status: "DB Crashed while checking whether the user object exists" });
                 }
                 else {
                     if (JSON.stringify(data.Item, null, 2) == null) {
+                        //adding the user
                         const params = {
                             TableName: 'Users',
                             Item: req.body
                         };
                         docClient.put(params, function (err1: any, data1: any) {
                             if (err1) {
-                                res.statusCode = 400;
-                                res.send(err1);
+                                res.statusCode = 500;
+                                res.send({ status: "DB Crashed While Adding New User" });
                             } else {
                                 res.statusCode = 200;
-                                res.send({ status: 'success' });
+                                res.send({ status: 'User Added Successfully' });
                             }
                         });
 
                     } else {
-                        res.statusCode = 400;
+                        res.statusCode = 201;
                         res.send({ status: "Email Address is Already Registered" });
                     }
-
                 }
             })
 
