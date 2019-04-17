@@ -48,7 +48,7 @@ router.post("/token", (req, res, next) => {
                 res.send({ error: "Email is not authenticated!" });
             } else {
                 res.statusCode = 200;
-                var token = jwt.sign({ email: req.body.email }, process.env.SECRET);
+                var token = jwt.sign(data.Item, process.env.SECRET);
                 res.send({ token: token });
             }
 
