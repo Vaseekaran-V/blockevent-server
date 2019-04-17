@@ -45,7 +45,10 @@ export namespace formController {
                                 };
                                 docClient.put(params, function (err3: any, data3: any) {
                                     if (err3) {
-                                        console.log(err1);
+                                        console.log(err3);
+                                    } else {
+                                        res.statusCode = 200;
+                                        res.send({ status: 'Registration form Added Successfully' });
                                     }
                                 });
                             } else {
@@ -55,8 +58,7 @@ export namespace formController {
 
                         }
                     })
-                    res.statusCode = 200;
-                    res.send({ status: 'Registration form Added Successfully' });
+
                 }
             });
 
