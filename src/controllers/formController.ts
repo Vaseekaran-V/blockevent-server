@@ -30,21 +30,29 @@ export namespace formController {
                         TableName: "Users",
                         Key: {
                             "email": req.body.email
-                        }                    };
+                        }
+                    };
                     docClient.get(paramsG, function (err2: any, data2: any) {
                         if (err2) {
-
+                            res.statusCode = 500;
+                            res.send({ status: "DB Crashed While Validating User" });
                         } else {
-                            data2.Item.isRegistered=true;
-                            const params = {
-                                TableName: 'Users',
-                                Item: data2.Item
-                            };
-                            docClient.put(params, function (err3: any, data3: any) {
-                                if (err3) {
-                                    console.log(err1);
-                                }
-                            });
+                            if (JSON.stringify(data2.Item, null, 2) != null) {
+                                data2.Item.isRegistered = true;
+                                const params = {
+                                    TableName: 'Users',
+                                    Item: data2.Item
+                                };
+                                docClient.put(params, function (err3: any, data3: any) {
+                                    if (err3) {
+                                        console.log(err1);
+                                    }
+                                });
+                            } else {
+                                res.statusCode = 400;
+                                res.send({ status: 'User email invalid' });
+                            }
+
                         }
                     })
                     res.statusCode = 200;
