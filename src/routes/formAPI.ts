@@ -23,6 +23,15 @@ formRouter.post("/submit", (req: Request, res: Response, next: NextFunction) => 
     });
 
 
+    
+});
+
+
+formRouter.post("/submitTest", (req: Request, res: Response, next: NextFunction) => {
+   
+            const controller = new formController.formData;
+            controller.addForm(req, res, next);
+    
 });
 
 export { formRouter };

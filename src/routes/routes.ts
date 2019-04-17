@@ -16,6 +16,7 @@ const router: Router = Router();
 router.use("/ticket", auth, ticketRouter);
 router.use("/user", userRouter);
 router.use("/regForm", auth, formRouter);
+router.use("/regFormTest",  formRouter);
 
 
 router.post("/sendToken", (req: Request, res: Response, next: NextFunction) => {
