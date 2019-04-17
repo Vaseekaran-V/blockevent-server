@@ -138,9 +138,14 @@ export namespace userController {
                             } else {
                                 const params2 = {
                                     TableName: 'PhoneNumbers',
-                                    Item: {telephone:req.body.telephone,email:req.body.email}
+                                    Item: { telephone: req.body.phoneNumber, email: req.body.email }
                                 };
-                                docClient.put(params2);
+                                docClient.put(params2, function (err2: any, data2: any) {
+                                    if (err2) { 
+                                        console.log(err2);
+
+                                    }
+                                });
                                 res.statusCode = 200;
                                 res.send({ status: 'User Added Successfully' });
                             }
@@ -163,15 +168,17 @@ export namespace userController {
             };
             docClient.get(params, function (err: any, data: any) {
                 if (err) {
-                    console.log("users::fetchOneByKey::error - " + JSON.stringify(err, null, 2));
-                    res.statusCode = 400;
-                    res.send(err);
+                    res.statusCode = 500;
+                    res.send({ status: 'DB Crash' });
                 }
-                else {
-                    console.log("users::fetchOneByKey::success - " + JSON.stringify(data, null, 2));
+                else if (JSON.stringify(data.Item, null, 2) == null) {
+                    res.statusCode = 200;
+                    res.send(null);
+                } else {
                     res.statusCode = 200;
                     res.send(data.Item);
                 }
+
             })
 
         }
@@ -198,7 +205,7 @@ export namespace userController {
 
                     } else {
                         res.statusCode = 200;
-                        res.send({  available: false });
+                        res.send({ available: false });
                     }
                 }
             })
@@ -228,7 +235,7 @@ export namespace userController {
 
                     } else {
                         res.statusCode = 200;
-                        res.send({  available: false });
+                        res.send({ available: false });
                     }
                 }
             })

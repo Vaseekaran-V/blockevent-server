@@ -12,8 +12,8 @@ let docClient = new AWS.DynamoDB.DocumentClient();
 export namespace formController {
     export class formData {
         public addForm(req: Request, res: Response, next: NextFunction) {
-        console.log(req.body);
-        
+            console.log(req.body);
+
             const params = {
                 TableName: 'Forms',
                 Item: req.body
@@ -21,10 +21,32 @@ export namespace formController {
             docClient.put(params, function (err1: any, data1: any) {
                 if (err1) {
                     console.log(err1);
-                    
+
                     res.statusCode = 500;
                     res.send({ status: "DB Crashed While Adding the registration form" });
                 } else {
+                    req.body.isRegistered = true;
+                    var paramsG = {
+                        TableName: "Users",
+                        Key: {
+                            "email": req.body.email
+                        }                    };
+                    docClient.get(paramsG, function (err2: any, data2: any) {
+                        if (err2) {
+
+                        } else {
+                            data2.Item.isRegistered=true;
+                            const params = {
+                                TableName: 'Users',
+                                Item: data2.Item
+                            };
+                            docClient.put(params, function (err3: any, data3: any) {
+                                if (err3) {
+                                    console.log(err1);
+                                }
+                            });
+                        }
+                    })
                     res.statusCode = 200;
                     res.send({ status: 'Registration form Added Successfully' });
                 }
