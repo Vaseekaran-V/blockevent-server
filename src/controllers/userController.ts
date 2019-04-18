@@ -143,7 +143,6 @@ export namespace userController {
                                 docClient.put(params2, function (err2: any, data2: any) {
                                     if (err2) { 
                                         console.log(err2);
-
                                     }
                                 });
                                 res.statusCode = 200;

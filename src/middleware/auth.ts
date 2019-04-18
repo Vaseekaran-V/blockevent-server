@@ -3,21 +3,26 @@ import { Router, Request, Response, NextFunction } from "express";
 
 
 export function auth(req: Request, res: Response, next: NextFunction) {
-    const lol = req.headers.authorization;
-    const token: string[] = lol.split(" ");
 
-    jwt.verify(token[1], process.env.SECRET, (err: any, decodedToken: string) => {
-        if (err || !decodedToken) {
-            //   logger.info("Authentication failed");
+    if (req.headers.authorization) {
+        const lol = req.headers.authorization;
+        const token: string[] = lol.split(" ");
 
-            return res.status(403).json({ err: "Authentication failed" });
-        } else {
+        jwt.verify(token[1], process.env.SECRET, (err: any, decodedToken: string) => {
+            if (err || !decodedToken) {
+                //   logger.info("Authentication failed");
 
-            //  //console.log(decodedToken);
+                return res.status(403).json({ err: "Authentication failed" });
+            } else {
 
-            next();
-        }
+                //  //console.log(decodedToken);
 
-    });
+                next();
+            }
+
+        });
+    }else {
+        return res.status(400).json({ err: "The Authorization token is not found" });
+    }
 
 }
