@@ -187,7 +187,7 @@ export namespace userController {
             var paramsG = {
                 TableName: "Users",
                 Key: {
-                    "email": req.params.email
+                    "email": req.body.email
                 }
             };
             console.log(paramsG);
@@ -216,7 +216,7 @@ export namespace userController {
             var paramsG = {
                 TableName: "PhoneNumbers",
                 Key: {
-                    "telephone": req.params.mobileNumber
+                    "telephone": req.body.phoneNumber
                 }
             };
             console.log(paramsG);
