@@ -11,11 +11,12 @@ export function auth(req: Request, res: Response, next: NextFunction) {
         jwt.verify(token[1], process.env.SECRET, (err: any, decodedToken: string) => {
             if (err || !decodedToken) {
                 //   logger.info("Authentication failed");
+                console.log("3")
 
                 return res.status(403).json({ err: "Authentication failed" });
             } else {
 
-                //  //console.log(decodedToken);
+                 console.log(decodedToken);
 
                 next();
             }

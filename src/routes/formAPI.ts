@@ -15,6 +15,8 @@ formRouter.post("/submit", (req: Request, res: Response, next: NextFunction) => 
 
         jwt.verify(token[1], process.env.SECRET, (err: any, decodedToken: any) => {
             if (err || !decodedToken) {
+                console.log("1")
+
                 return res.status(403).json({ err: "Authentication failed" });
             } else if (req.body.email == decodedToken.email && req.body.phoneNumber == decodedToken.phoneNumber) {
                 const controller = new formController.formData;
@@ -24,6 +26,7 @@ formRouter.post("/submit", (req: Request, res: Response, next: NextFunction) => 
             }
         });
     } else {
+        console.log("2")
         return res.status(400).json({ err: "The Authorization token is not found" });
     }
 

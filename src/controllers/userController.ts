@@ -1,10 +1,50 @@
 import { NextFunction, Request, Response } from "express";
 import axios from 'axios';
 import { AWS } from '../dao/index';
+import { AES, enc } from "crypto-js";
+import sha256 from "sha256";
+import { Keypair } from "stellar-sdk";
+const jwt = require('jsonwebtoken');
+
+function hashEmail(email: any) {
+    return sha256(email);
+}
+
+function decyrptSecret(secret: any, signer: any) {
+    try {
+        const decrypted = AES.decrypt(secret, signer);
+        const plaintext = decrypted.toString(enc.Utf8);
+
+        // console.log('secret => ' + secret);
+        // console.log('decrypted => ' + plaintext);
+        return plaintext;
+    } catch (error) {
+        // console.log(error);
+
+        return null;
+    }
+}
+
+
+function encyrptSecret(secret: any, signer: any) {
+    try {
+        const ciphertext = AES.encrypt(secret, signer);
+
+        // console.log('secret => ' + secret);
+        // console.log('signer => ' + signer);
+        // console.log('ciphertext => ' + ciphertext);
+        return ciphertext.toString();
+    } catch (error) {
+        // console.log(error);
+        return null;
+    }
+}
 
 let docClient = new AWS.DynamoDB.DocumentClient();
 export namespace userController {
     export class UserData {
+
+
         public getUserGitHub(req: Request, res: Response, next: NextFunction) {
             axios.get(`https://api.github.com/users/${req.params.gitID}`, {
                 params: {
@@ -160,10 +200,11 @@ export namespace userController {
 
         }
         public GetUser(req: Request, res: Response, next: NextFunction) {
+
             var params = {
                 TableName: "Users",
                 Key: {
-                    "email": req.params.email
+                    "email": req.body.email
                 }
             };
             docClient.get(params, function (err: any, data: any) {
@@ -172,11 +213,41 @@ export namespace userController {
                     res.send({ status: 'DB Crash' });
                 }
                 else if (JSON.stringify(data.Item, null, 2) == null) {
-                    res.statusCode = 200;
-                    res.send(null);
+                    res.statusCode = 202;
+                    res.send({ status: 'User not found' });
                 } else {
-                    res.statusCode = 200;
-                    res.send(data.Item);
+                    console.log(data.Item);
+                    const userSecretKey = decyrptSecret(data.Item.encryptedSecret, req.body.password);
+
+                    console.log(userSecretKey);
+                    if (userSecretKey != null && userSecretKey.length >= 5) {
+                        const publicKey = Keypair.fromSecret(userSecretKey).publicKey();
+
+                        if (data.Item.publicKey === publicKey) {
+                            // login sucesss
+                            res.statusCode = 201;
+                            const tokenStuff = {
+                                email: data.Item.email,
+                                phoneNumber: data.Item.phoneNumber,
+                                username: data.Item.username,
+                                isRegistered: data.Item.isRegistered,
+                                publicKey: data.Item.publicKey
+                            };
+                            var token = jwt.sign(tokenStuff, process.env.SECRET);
+                            console.log(token)
+                            res.send({ token: token });
+
+                        } else {
+                            console.log('failed');
+                            res.statusCode = 203;
+                            res.send({ status: 'login failed' });
+                        }
+                    } else {
+                        console.log('this failed');
+
+                        res.statusCode = 203;
+                        res.send({ status: 'login failed' });
+                    }
                 }
 
             })
@@ -241,5 +312,6 @@ export namespace userController {
             })
 
         }
+
     }
 }

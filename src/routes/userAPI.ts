@@ -45,7 +45,8 @@ userRouter.post("/add", (req: Request, res: Response, next: NextFunction) => {
 });
 
 
-userRouter.get("/get/:email", (req: Request, res: Response, next: NextFunction) => {
+userRouter.post("/login", (req: Request, res: Response, next: NextFunction) => {
+
     const controller = new userController.UserData;
     controller.GetUser(req, res, next);
 });

@@ -16,7 +16,7 @@ const router: Router = Router();
 router.use("/ticket", auth, ticketRouter);
 router.use("/user", userRouter);
 router.use("/regForm", auth, formRouter);
-router.use("/regFormTest",  formRouter);
+// router.use("/regFormTest",  formRouter);
 
 
 router.post("/sendToken", (req: Request, res: Response, next: NextFunction) => {
@@ -49,7 +49,11 @@ router.post("/token", (req, res, next) => {
                 res.send({ error: "Email is not authenticated!" });
             } else {
                 res.statusCode = 200;
-                var token = jwt.sign(data.Item, process.env.SECRET);
+                const tokenStuff = {
+                    email: data.Item.email,
+                    phoneNumber: data.Item.phoneNumber
+                };
+                var token = jwt.sign(tokenStuff, process.env.SECRET);
                 res.send({ token: token });
             }
 
