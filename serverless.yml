@@ -1,0 +1,32 @@
+service: serverless-express-typescript
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: 'dev'
+  region: us-east-1
+  environment:
+    APIKEY: AIzaSyCdvcKH4Ae_j-P6Gvl6Ujr0n-ArH4e1B9o
+    AUTHDOMAIN: tickety-f0da3.firebaseapp.com
+    DATABASEURL: https://tickety-f0da3.firebaseio.com/
+    PROJECTID: tickety-f0da3
+    STORAGEBUCKET: tickety-f0da3.appspot.com
+    SECRET: ijk3dp4n
+    AWS_ENDPOINT: http://dynamodb.us-east-1.amazonaws.com
+
+
+package:
+  exclude:
+    - "**/*.ts"
+    - "test/**"
+    - "scripts/**"
+    - ".vscode/**"
+    - "*"
+
+functions:
+  http:
+    handler: src/lambda.http
+    timeout: 2
+    events:
+      - http: ANY /
+      - http: ANY /{proxy+}
