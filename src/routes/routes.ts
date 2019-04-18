@@ -51,9 +51,13 @@ router.post("/token", (req, res, next) => {
                 res.statusCode = 200;
                 const tokenStuff = {
                     email: data.Item.email,
-                    phoneNumber: data.Item.phoneNumber
+                    phoneNumber: data.Item.phoneNumber,
+                    username: data.Item.username,
+                    isRegistered: data.Item.isRegistered,
+                    publicKey: data.Item.publicKey
                 };
                 var token = jwt.sign(tokenStuff, process.env.SECRET);
+                // console.log(token)
                 res.send({ token: token });
             }
 
