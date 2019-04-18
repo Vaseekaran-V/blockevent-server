@@ -3,6 +3,8 @@ import express = require("express");
 import * as apiRoutes from "./routes/routes";
 import * as dotenv from "dotenv";
 import cors from "cors";
+const helmet = require('helmet')
+
 // import { requestHandler } from "./controllers/requestMatcher";
 
 // import { CollectionReference } from "@google-cloud/firestore";
@@ -18,6 +20,8 @@ dotenv.config();
 const app: express.Application = express();
 // The port the express app will listen on
 const port =process.env.PORT||7000;
+app.use(helmet())
+
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");

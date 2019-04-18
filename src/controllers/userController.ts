@@ -141,7 +141,8 @@ export namespace userController {
                                     Item: { telephone: req.body.phoneNumber, email: req.body.email }
                                 };
                                 docClient.put(params2, function (err2: any, data2: any) {
-                                    if (err2) { 
+                                    if (err2) {
+
                                         console.log(err2);
                                     }
                                 });
