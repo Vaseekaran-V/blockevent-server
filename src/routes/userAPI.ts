@@ -51,12 +51,12 @@ userRouter.get("/get/:email", (req: Request, res: Response, next: NextFunction) 
 });
 
 
-userRouter.get("/checkAvailability/", (req: Request, res: Response, next: NextFunction) => {
+userRouter.post("/checkAvailability/", (req: Request, res: Response, next: NextFunction) => {
     const controller = new userController.UserData;
     controller.EmailAvailability(req, res, next);
 });
 
-userRouter.get("/checkMobileNumberAvailability/", (req: Request, res: Response, next: NextFunction) => {
+userRouter.post("/checkMobileNumberAvailability/", (req: Request, res: Response, next: NextFunction) => {
     const controller = new userController.UserData;
     controller.MobileNumberAvailability(req, res, next);
 });
