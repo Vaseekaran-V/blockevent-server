@@ -32,37 +32,58 @@ router.post("/verifyToken", (req: Request, res: Response, next: NextFunction) =>
 });
 
 router.post("/token", (req, res, next) => {
-    var params = {
-        TableName: "Users",
-        Key: {
-            "email": req.body.email
-        }
-    };
-    docClient.get(params, function (err: any, data: any) {
-        if (err) {
-            res.statusCode = 500;
-            res.send({ error: "Server Error when retrieving user object" });
-        }
-        else {
-            if (JSON.stringify(data.Item, null, 2) == null) {
-                res.statusCode = 400;
-                res.send({ error: "Email is not authenticated!" });
+
+    if (req.headers.authorization) {
+        const lol = req.headers.authorization;
+        const token: string[] = lol.split(" ");
+
+        jwt.verify(token[1], process.env.SECRET, (err: any, decodedToken: any) => {
+            if (err || !decodedToken) {
+                //   logger.info("Authentication failed");
+                console.log("3")
+
+                return res.status(403).json({ err: "Authentication failed" });
             } else {
-                res.statusCode = 200;
-                const tokenStuff = {
-                    email: data.Item.email,
-                    phoneNumber: data.Item.phoneNumber,
-                    username: data.Item.username,
-                    isRegistered: data.Item.isRegistered,
-                    publicKey: data.Item.publicKey
+
+                console.log(decodedToken);
+                var params = {
+                    TableName: "Users",
+                    Key: {
+                        "email": decodedToken.email
+                    }
                 };
-                var token = jwt.sign(tokenStuff, process.env.SECRET);
-                // console.log(token)
-                res.send({ token: token });
+                docClient.get(params, function (err: any, data: any) {
+                    if (err) {
+                        res.statusCode = 500;
+                        res.send({ error: "Server Error when retrieving user object" });
+                    }
+                    else {
+                        if (JSON.stringify(data.Item, null, 2) == null) {
+                            res.statusCode = 400;
+                            res.send({ error: "Email is not authenticated!" });
+                        } else {
+                            res.statusCode = 200;
+                            const tokenStuff = {
+                                email: data.Item.email,
+                                phoneNumber: data.Item.phoneNumber,
+                                username: data.Item.username,
+                                isRegistered: data.Item.isRegistered,
+                                publicKey: data.Item.publicKey
+                            };
+                            var token = jwt.sign(tokenStuff, process.env.SECRET);
+                            // console.log(token)
+                            res.send({ token: token });
+                        }
+
+                    }
+                })
             }
 
-        }
-    })
+        });
+    } else {
+        return res.status(400).json({ err: "The Authorization token is not found" });
+    }
+
 });
 
 
