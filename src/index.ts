@@ -21,12 +21,12 @@ dotenv.config();
 const app: express.Application = express();
 // The port the express app will listen on
 const port = process.env.PORT || 7000;
-// app.use(helmet());
-// app.enable("trust proxy");
-// const limiter = rateLimit({
-//     windowMs: 15 * 60 * 1000, // 15 minutes
-//     max: 100 // limit each IP to 100 requests per windowMs
-// });
+app.use(helmet());
+app.enable("trust proxy");
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // limit each IP to 100 requests per windowMs
+});
 
 // //  apply to all requests
 // app.use(limiter);
@@ -38,7 +38,7 @@ app.use(function (req, res, next) {
     next();
 });
 app.use(cors({
-    // "origin": "https://blockevent.tk",
+    "origin": "https://blockevent.tk",
     // "origin": "http://localhost:4200",    
     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
     "preflightContinue": false,
@@ -59,7 +59,7 @@ app.use( "/api" , apiRoutes.router);
 app.listen(port, () => {
     // Success callback
     // tslint:disable-next-line:no-console
-    //console.log(`Listening at http://localhost:${port}/`);
+    console.log(`Listening at http://localhost:${port}/`);
 });
 
 // schedule("* */1 * * *", function() {
