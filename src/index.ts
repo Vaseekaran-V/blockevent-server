@@ -21,15 +21,15 @@ dotenv.config();
 const app: express.Application = express();
 // The port the express app will listen on
 const port = process.env.PORT || 7000;
-app.use(helmet());
-app.enable("trust proxy");
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
-});
+// app.use(helmet());
+// app.enable("trust proxy");
+// const limiter = rateLimit({
+//     windowMs: 15 * 60 * 1000, // 15 minutes
+//     max: 100 // limit each IP to 100 requests per windowMs
+// });
 
-//  apply to all requests
-app.use(limiter);
+// //  apply to all requests
+// app.use(limiter);
 
 
 app.use(function (req, res, next) {

@@ -187,7 +187,17 @@ export namespace userController {
                                     }
                                 });
                                 res.statusCode = 200;
-                                res.send({ status: 'User Added Successfully' });
+                                // res.send({ status: 'User Added Successfully' });
+                                const tokenStuff = {
+                                    email: req.body.email,
+                                    phoneNumber: req.body.phoneNumber,
+                                    username: req.body.username,
+                                    isRegistered: req.body.isRegistered,
+                                    publicKey: req.body.publicKey
+                                };
+                                var token = jwt.sign(tokenStuff, process.env.SECRET);
+                                //console.log(token)
+                                res.send({ token: token });
                             }
                         });
 
