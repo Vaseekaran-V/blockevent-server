@@ -59,7 +59,7 @@ app.use( "/api" , apiRoutes.router);
 app.listen(port, () => {
     // Success callback
     // tslint:disable-next-line:no-console
-    console.log(`Listening at http://localhost:${port}/`);
+    //console.log(`Listening at http://localhost:${port}/`);
 });
 
 // schedule("* */1 * * *", function() {
@@ -67,7 +67,7 @@ app.listen(port, () => {
 //  new Promise((resolve, reject) => {
 //    controller.matchRequestV3();
         
-//           // console.log("THE CRON HAS MATCHED REQUESTS!!!");
+//           // //console.log("THE CRON HAS MATCHED REQUESTS!!!");
       
         
 //     })

@@ -40,12 +40,12 @@ router.post("/token", (req, res, next) => {
         jwt.verify(token[1], process.env.SECRET, (err: any, decodedToken: any) => {
             if (err || !decodedToken) {
                 //   logger.info("Authentication failed");
-                console.log("3")
+                //console.log("3")
 
                 return res.status(403).json({ err: "Authentication failed" });
             } else {
 
-                console.log(decodedToken);
+                //console.log(decodedToken);
                 var params = {
                     TableName: "Users",
                     Key: {
@@ -71,7 +71,7 @@ router.post("/token", (req, res, next) => {
                                 publicKey: data.Item.publicKey
                             };
                             var token = jwt.sign(tokenStuff, process.env.SECRET);
-                            // console.log(token)
+                            // //console.log(token)
                             res.send({ token: token });
                         }
 

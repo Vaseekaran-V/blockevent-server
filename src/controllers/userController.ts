@@ -15,11 +15,11 @@ function decyrptSecret(secret: any, signer: any) {
         const decrypted = AES.decrypt(secret, signer);
         const plaintext = decrypted.toString(enc.Utf8);
 
-        // console.log('secret => ' + secret);
-        // console.log('decrypted => ' + plaintext);
+        // //console.log('secret => ' + secret);
+        // //console.log('decrypted => ' + plaintext);
         return plaintext;
     } catch (error) {
-        // console.log(error);
+        // //console.log(error);
 
         return null;
     }
@@ -30,12 +30,12 @@ function encyrptSecret(secret: any, signer: any) {
     try {
         const ciphertext = AES.encrypt(secret, signer);
 
-        // console.log('secret => ' + secret);
-        // console.log('signer => ' + signer);
-        // console.log('ciphertext => ' + ciphertext);
+        // //console.log('secret => ' + secret);
+        // //console.log('signer => ' + signer);
+        // //console.log('ciphertext => ' + ciphertext);
         return ciphertext.toString();
     } catch (error) {
-        // console.log(error);
+        // //console.log(error);
         return null;
     }
 }
@@ -52,7 +52,7 @@ export namespace userController {
                     client_secret: 'f31a713d397670fa4d79eaffade66effb9d91e2d'
                 }
             }).then(response => {
-                // console.log(response.data);
+                // //console.log(response.data);
                 res.send(response.data);
             }).catch(err => {
                 axios.get(`https://api.github.com/users/${req.params.gitID}`, {
@@ -61,13 +61,13 @@ export namespace userController {
                         client_secret: '45a3d82aed3b27a3fb2a3f36c65c22959f54db30'
                     }
                 }).then(response => {
-                    // console.log(response.data);
+                    // //console.log(response.data);
                     res.send(response.data);
                 }).catch(err => {
                     var obj = {
                         status: 'Getting Git User Data Failed'
                     }
-                    console.log(obj);
+                    //console.log(obj);
                     res.statusCode = 400;
                     res.send(obj);
                 });
@@ -82,13 +82,13 @@ export namespace userController {
                     key: 'SEFCadUUA4CqM91xwQvUDw%28%28'
                 }
             }).then(response => {
-                console.log(response.data);
+                //console.log(response.data);
                 res.send(response.data);
             }).catch(err => {
                 var obj = {
                     status: 'Getting Stack User Data Failed'
                 }
-                console.log(obj);
+                //console.log(obj);
                 res.statusCode = 400;
                 res.send(obj);
             });
@@ -107,13 +107,13 @@ export namespace userController {
                         'Accept': 'application/json'
                     }
                 }).then(response => {
-                    // console.log(response.data);
+                    // //console.log(response.data);
                     res.send(response.data);
                 }).catch(err => {
                     var obj = {
                         status: 'sending token failed'
                     }
-                    console.log(obj);
+                    //console.log(obj);
                     res.statusCode = 400;
                     res.send(obj);
                 });
@@ -132,14 +132,14 @@ export namespace userController {
                         'Accept': 'application/json'
                     }
                 }).then(response => {
-                    // console.log(response.data);
+                    // //console.log(response.data);
                     res.send(response.data);
 
                 }).catch(err => {
                     var obj = {
                         status: 'verifying token failed'
                     }
-                    console.log(obj);
+                    //console.log(obj);
                     res.statusCode = 400;
                     res.send(obj);
                 });
@@ -155,7 +155,7 @@ export namespace userController {
                 }
             };
 
-            console.log(paramsG);
+            //console.log(paramsG);
 
             docClient.get(paramsG, function (err: any, data: any) {
                 if (err) {
@@ -171,7 +171,7 @@ export namespace userController {
                         };
                         docClient.put(params, function (err1: any, data1: any) {
                             if (err1) {
-                                console.log(err1);
+                                //console.log(err1);
 
                                 res.statusCode = 500;
                                 res.send({ status: "DB Crashed While Adding New User" });
@@ -183,7 +183,7 @@ export namespace userController {
                                 docClient.put(params2, function (err2: any, data2: any) {
                                     if (err2) {
 
-                                        console.log(err2);
+                                        //console.log(err2);
                                     }
                                 });
                                 res.statusCode = 200;
@@ -216,10 +216,10 @@ export namespace userController {
                     res.statusCode = 202;
                     res.send({ status: 'User not found' });
                 } else {
-                    console.log(data.Item);
+                    //console.log(data.Item);
                     const userSecretKey = decyrptSecret(data.Item.encryptedSecret, req.body.password);
 
-                    console.log(userSecretKey);
+                    //console.log(userSecretKey);
                     if (userSecretKey != null && userSecretKey.length >= 5) {
                         const publicKey = Keypair.fromSecret(userSecretKey).publicKey();
 
@@ -234,16 +234,16 @@ export namespace userController {
                                 publicKey: data.Item.publicKey
                             };
                             var token = jwt.sign(tokenStuff, process.env.SECRET);
-                            console.log(token)
+                            //console.log(token)
                             res.send({ token: token });
 
                         } else {
-                            console.log('failed');
+                            //console.log('failed');
                             res.statusCode = 203;
                             res.send({ status: 'login failed' });
                         }
                     } else {
-                        console.log('this failed');
+                        //console.log('this failed');
 
                         res.statusCode = 203;
                         res.send({ status: 'login failed' });
@@ -261,11 +261,11 @@ export namespace userController {
                     "email": req.body.email
                 }
             };
-            console.log(paramsG);
+            //console.log(paramsG);
 
             docClient.get(paramsG, function (err: any, data: any) {
                 if (err) {
-                    console.log(err)
+                    //console.log(err)
                     res.statusCode = 501;
                     res.send({ status: "DB Crashed while checking whether the user object exists" });
                 }
@@ -290,11 +290,11 @@ export namespace userController {
                     "telephone": req.body.phoneNumber
                 }
             };
-            console.log(paramsG);
+            //console.log(paramsG);
 
             docClient.get(paramsG, function (err: any, data: any) {
                 if (err) {
-                    console.log(err)
+                    //console.log(err)
 
                     res.statusCode = 501;
                     res.send({ status: "DB Crashed while checking whether the user object exists" });

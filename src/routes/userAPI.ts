@@ -37,7 +37,7 @@ userRouter.post("/add", (req: Request, res: Response, next: NextFunction) => {
             var obj = {
                 status: 'verifying token failed'
             }
-            console.log(obj);
+            //console.log(obj);
             res.statusCode = 206;
             res.send(obj);
         });

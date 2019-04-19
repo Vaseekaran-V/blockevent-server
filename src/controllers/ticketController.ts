@@ -11,7 +11,7 @@ export namespace ticketController {
     export class ticketData {
         public signUserTicket(req: Request, res: Response, next: NextFunction) {
             // var userId = firebase.auth().currentUser.uid;
-            console.log(req.body);
+            //console.log(req.body);
             const sourceKeypair = Keypair.fromSecret('SBVB4S5BUNUNRLMBF7LJC6DQAAGCPHD6KASBJYVNL4SXARAQYMFWA6LB');
 
             var obj = {
@@ -27,7 +27,7 @@ export namespace ticketController {
                 parsedTx.sign(sourceKeypair)
                 let publicKey = parsedTx.source
                 let x = parsedTx.toEnvelope().toXDR().toString('base64')
-                console.log(x);
+                //console.log(x);
                 // var obj = {
                 //     //@ts-ignore
                 //     'status': '205',
@@ -50,7 +50,7 @@ export namespace ticketController {
                                     .set({
                                         ticketID: transactionResult.hash
                                     }).then(() => {
-                                        console.log(transactionResult);
+                                        //console.log(transactionResult);
                                         obj.status = '201';
                                         obj.statusText = 'Success';
                                         res.send(obj);
@@ -61,7 +61,7 @@ export namespace ticketController {
 
                             })
                     }).catch(function (err) {
-                        console.log(err.response);
+                        //console.log(err.response);
                         obj.status = '203'
                         obj.statusText = 'Error submitting to Stellar';
                         res.send(obj);

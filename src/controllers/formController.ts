@@ -12,7 +12,7 @@ let docClient = new AWS.DynamoDB.DocumentClient();
 export namespace formController {
     export class formData {
         public addForm(req: Request, res: Response, next: NextFunction) {
-            console.log(req.body);
+            //console.log(req.body);
 
             const params = {
                 TableName: 'Forms',
@@ -20,7 +20,7 @@ export namespace formController {
             };
             docClient.put(params, function (err1: any, data1: any) {
                 if (err1) {
-                    console.log(err1);
+                    //console.log(err1);
 
                     res.statusCode = 500;
                     res.send({ status: "DB Crashed While Adding the registration form" });
@@ -45,7 +45,7 @@ export namespace formController {
                                 };
                                 docClient.put(params, function (err3: any, data3: any) {
                                     if (err3) {
-                                        console.log(err3);
+                                        //console.log(err3);
                                     } else {
                                         res.statusCode = 200;
                                         res.send({ status: 'Registration form Added Successfully' });
