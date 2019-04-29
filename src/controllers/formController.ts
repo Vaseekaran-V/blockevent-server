@@ -63,5 +63,63 @@ export namespace formController {
             });
 
         }
+
+        public getForm(req: Request, res: Response, next: NextFunction) {
+
+            var paramsG = {
+                TableName: 'PhoneNumbers',
+                Key: {
+                    "telephone": req.body.phoneNumber
+                }
+            };
+            docClient.get(paramsG, function (err2: any, data2: any) {
+                if (err2) {
+                    console.log("first error" + err2);
+                    res.statusCode = 500;
+                    res.send({ status: "DB Crashed While Validating User" });
+                } else {
+                    if (JSON.stringify(data2.Item, null, 2) != null) {
+                        var paramsE = {
+                            TableName: 'Forms',
+                            Key: {
+                                "email": data2.Item.email
+                            }
+                        };
+                        docClient.get(paramsE, function (err3: any, data3: any) {
+                            if (err3) {
+                                console.log("second error" + err3);
+                                res.statusCode = 500;
+                                res.send({ status: "DB Crashed While Validating User" });
+                            } else {
+                                console.log(data3.Item);
+                                if (JSON.stringify(data3.Item, null, 2) != null) {
+                                    // res.send(data3.Item);
+                                    res.send({
+                                        name: data3.Item.fname,
+                                        phoneNumber: data3.Item.phoneNumber,
+                                        tshirtSize: data3.Item.tshirtSize,
+                                        mealPreference: data3.Item.mealPreference
+                                    });
+
+                                } else {
+                                    res.statusCode = 400;
+                                    res.send({ status: 'User email invalid' });
+                                }
+
+                            }
+                        })
+                    } else {
+                        res.statusCode = 400;
+                        res.send({ status: 'User phoneNumber invalid' });
+                    }
+
+                }
+            })
+
+
+
+
+
+        }
     }
 }

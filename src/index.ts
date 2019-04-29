@@ -4,14 +4,6 @@ import * as apiRoutes from "./routes/routes";
 import * as dotenv from "dotenv";
 import cors from "cors";
 const helmet = require('helmet')
-const rateLimit = require("express-rate-limit");
-
-// import { requestHandler } from "./controllers/requestMatcher";
-
-// import { CollectionReference } from "@google-cloud/firestore";
-
-// const cron = require("node-cron");
-
 dotenv.config();
 
 
@@ -23,14 +15,6 @@ const app: express.Application = express();
 const port = process.env.PORT || 7000;
 app.use(helmet());
 app.enable("trust proxy");
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
-});
-
-// //  apply to all requests
-// app.use(limiter);
-
 
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");

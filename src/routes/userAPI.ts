@@ -44,15 +44,15 @@ userRouter.post("/add", (req: Request, res: Response, next: NextFunction) => {
 
 });
 
-userRouter.post("/addTest", (req: Request, res: Response, next: NextFunction) => {
+// userRouter.post("/addTest", (req: Request, res: Response, next: NextFunction) => {
 
 
-    const controller = new userController.UserData;
-    controller.AddUser(req, res, next);
+//     const controller = new userController.UserData;
+//     controller.AddUser(req, res, next);
 
 
 
-});
+// });
 
 userRouter.post("/login", (req: Request, res: Response, next: NextFunction) => {
 
