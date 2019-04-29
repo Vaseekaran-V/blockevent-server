@@ -2,6 +2,8 @@
 import { userController } from "../controllers/userController";
 import { Router, Request, Response, NextFunction } from "express";
 import axios from 'axios';
+import { auth } from '../middleware/auth';
+
 
 const userRouter: Router = Router();
 
@@ -44,15 +46,17 @@ userRouter.post("/add", (req: Request, res: Response, next: NextFunction) => {
 
 });
 
-// userRouter.post("/addTest", (req: Request, res: Response, next: NextFunction) => {
+userRouter.get("/getStackUserDetails/:stackID", (req: Request, res: Response, next: NextFunction) => {
+    const controller = new userController.UserData;
+    controller.getUserStack(req, res, next);
 
+});
+userRouter.post("/updateAddress", auth, (req: Request, res: Response, next: NextFunction) => {
 
-//     const controller = new userController.UserData;
-//     controller.AddUser(req, res, next);
+    const controller = new userController.UserData;
+    controller.AddContactDetails(req, res, next);
 
-
-
-// });
+});
 
 userRouter.post("/login", (req: Request, res: Response, next: NextFunction) => {
 

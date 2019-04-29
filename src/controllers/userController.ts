@@ -323,5 +323,35 @@ export namespace userController {
 
         }
 
+        public AddContactDetails(req: Request, res: Response, next: NextFunction) {
+
+            var params = {
+                TableName: 'Forms',
+                Key: {
+                    "email": req.body.email
+                },
+                UpdateExpression: "set address=:a",
+                ExpressionAttributeValues: {
+                    ":a": req.body.address
+                },
+                ReturnValues: "UPDATED_NEW"
+            };
+
+            console.log("Updating the item...");
+            docClient.update(params, function (err: any, data: any) {
+                if (err) {
+                    console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
+                    res.statusCode = 500;
+                    res.send({ status: "DB Crashed While Adding User Contact Details" });
+                } else {
+                    console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
+                    res.statusCode = 200;
+                    res.send({ status: "Success" });
+                }
+            });
+
+
+
+        }
     }
 }
