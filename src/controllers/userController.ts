@@ -330,6 +330,41 @@ export namespace userController {
 
         }
 
+        public CheckUserAddressPresence(req: Request, res: Response, next: NextFunction) {
+            //first retrieve to check for dulicates
+            var paramsG = {
+                TableName: "Forms",
+                Key: {
+                    "email": req.body.email
+                }
+            };
+            //console.log(paramsG);
+
+            docClient.get(paramsG, function (err: any, data: any) {
+                if (err) {
+                    //console.log(err)
+                    res.statusCode = 501;
+                    res.send({ status: "DB Crashed while checking whether the user object exists" });
+                }
+                else {
+                    if (JSON.stringify(data.Item, null, 2) == null) {
+                        res.statusCode = 200;
+                        res.send({ present: false });
+                    } else {
+                        if (data.Item.address && data.Item.address != "") {
+                            res.statusCode = 200;
+                            res.send({ present: true });
+                        } else {
+                            res.statusCode = 200;
+                            res.send({ present: false });
+                        }
+
+                    }
+                }
+            })
+
+        }
+
         public AddContactDetails(req: Request, res: Response, next: NextFunction) {
 
             var params = {

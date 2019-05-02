@@ -70,6 +70,11 @@ userRouter.post("/checkAvailability/", (req: Request, res: Response, next: NextF
     controller.EmailAvailability(req, res, next);
 });
 
+userRouter.post("/checkUserAddressPresence/", (req: Request, res: Response, next: NextFunction) => {
+    const controller = new userController.UserData;
+    controller.CheckUserAddressPresence(req, res, next);
+});
+
 userRouter.post("/checkMobileNumberAvailability/", (req: Request, res: Response, next: NextFunction) => {
     const controller = new userController.UserData;
     controller.MobileNumberAvailability(req, res, next);
