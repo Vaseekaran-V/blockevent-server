@@ -193,6 +193,7 @@ export namespace userController {
                                     phoneNumber: req.body.phoneNumber,
                                     username: req.body.username,
                                     isRegistered: req.body.isRegistered,
+                                    isSelected: false,
                                     publicKey: req.body.publicKey
                                 };
                                 var token = jwt.sign(tokenStuff, process.env.SECRET);
@@ -235,13 +236,19 @@ export namespace userController {
 
                         if (data.Item.publicKey === publicKey) {
                             // login sucesss
+                            let isSelected = false;
+                            if (data.Item.isSelected) {
+                                isSelected = data.Item.isSelected;
+                            }
+
                             res.statusCode = 201;
                             const tokenStuff = {
                                 email: data.Item.email,
                                 phoneNumber: data.Item.phoneNumber,
                                 username: data.Item.username,
                                 isRegistered: data.Item.isRegistered,
-                                publicKey: data.Item.publicKey
+                                publicKey: data.Item.publicKey,
+                                isSelected: isSelected
                             };
                             var token = jwt.sign(tokenStuff, process.env.SECRET);
                             //console.log(token)

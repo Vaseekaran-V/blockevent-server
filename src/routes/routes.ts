@@ -86,13 +86,19 @@ router.post("/token", regLimiter, (req, res, next) => {
                             res.statusCode = 400;
                             res.send({ error: "Email is not authenticated!" });
                         } else {
-                            res.statusCode = 200;
+                            let isSelected = false;
+                            if (data.Item.isSelected) {
+                                isSelected = data.Item.isSelected;
+                            }
+
+                            res.statusCode = 201;
                             const tokenStuff = {
                                 email: data.Item.email,
                                 phoneNumber: data.Item.phoneNumber,
                                 username: data.Item.username,
                                 isRegistered: data.Item.isRegistered,
-                                publicKey: data.Item.publicKey
+                                publicKey: data.Item.publicKey,
+                                isSelected: isSelected
                             };
                             var token = jwt.sign(tokenStuff, process.env.SECRET);
                             // //console.log(token)
