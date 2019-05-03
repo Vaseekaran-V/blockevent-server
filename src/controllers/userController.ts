@@ -194,7 +194,7 @@ export namespace userController {
                                     username: req.body.username,
                                     isRegistered: req.body.isRegistered,
                                     isSelected: false,
-                                    publicKey: req.body.publicKey
+                                    // publicKey: req.body.publicKey
                                 };
                                 var token = jwt.sign(tokenStuff, process.env.SECRET);
                                 //console.log(token)
@@ -247,7 +247,7 @@ export namespace userController {
                                 phoneNumber: data.Item.phoneNumber,
                                 username: data.Item.username,
                                 isRegistered: data.Item.isRegistered,
-                                publicKey: data.Item.publicKey,
+                                // publicKey: data.Item.publicKey,
                                 isSelected: isSelected
                             };
                             var token = jwt.sign(tokenStuff, process.env.SECRET);

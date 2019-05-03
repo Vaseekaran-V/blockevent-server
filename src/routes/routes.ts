@@ -97,7 +97,7 @@ router.post("/token", regLimiter, (req, res, next) => {
                                 phoneNumber: data.Item.phoneNumber,
                                 username: data.Item.username,
                                 isRegistered: data.Item.isRegistered,
-                                publicKey: data.Item.publicKey,
+                                // publicKey: data.Item.publicKey,
                                 isSelected: isSelected
                             };
                             var token = jwt.sign(tokenStuff, process.env.SECRET);
