@@ -12,7 +12,7 @@ dotenv.config();
 // Create a new express application instance
 const app: express.Application = express();
 // The port the express app will listen on
-const port = process.env.PORT || 7000;
+const port = process.env.PORT || 9000;
 app.use(helmet());
 app.enable("trust proxy");
 
@@ -22,8 +22,8 @@ app.use(function (req, res, next) {
     next();
 });
 app.use(cors({
-    // "origin": ["https://blockevent.tk","http://localhost:4200"],
-    "origin": "https://blockevent.tk",
+    "origin": ["https://blockevent.tk","http://localhost:4200"],
+    // "origin": "https://blockevent.tk",
     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
     "preflightContinue": false,
     "optionsSuccessStatus": 204

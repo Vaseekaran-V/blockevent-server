@@ -8,8 +8,12 @@ let config = {
   authDomain: process.env.AUTHDOMAIN,
   databaseURL: process.env.DATABASEURL,
   projectId: process.env.PROJECTID,
-  storageBucket: process.env.STORAGEBUCKET,
+  storageBucket: "",
+  messagingSenderId: process.env.MESSAGINGSENDERID,
+  appId: process.env.APPID,
+
 };
+
 
 firebase.initializeApp(config);
 

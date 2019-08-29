@@ -4,6 +4,7 @@ import { AWS } from '../dao/index';
 import { AES, enc } from "crypto-js";
 import sha256 from "sha256";
 import { Keypair } from "stellar-sdk";
+import firebase from '../firebase/fireConnection'
 const jwt = require('jsonwebtoken');
 
 function hashEmail(email: any) {
@@ -146,71 +147,49 @@ export namespace userController {
 
 
         }
-        public AddUser(req: Request, res: Response, next: NextFunction) {
-            //first retrieve to check for dulicates
-            var paramsG = {
-                TableName: "Users",
-                Key: {
-                    "email": req.body.email
-                }
-            };
+        public async AddUser(req: Request, res: Response, next: NextFunction) {
 
-            //console.log(paramsG);
+            const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email)}`).once('value');
 
-            docClient.get(paramsG, function (err: any, data: any) {
-                if (err) {
-                    res.statusCode = 501;
-                    res.send({ status: "DB Crashed while checking whether the user object exists" });
-                }
-                else {
-                    if (JSON.stringify(data.Item, null, 2) == null) {
-                        //adding the user
-                        const params = {
-                            TableName: 'Users',
-                            Item: req.body
-                        };
-                        docClient.put(params, function (err1: any, data1: any) {
-                            if (err1) {
-                                //console.log(err1);
+            console.log(snapshot.val())
+            if (snapshot.val() != null) {
+                res.statusCode = 201;
+                return res.send({ status: 'User Already Exists' });
+            }
 
-                                res.statusCode = 500;
-                                res.send({ status: "DB Crashed While Adding New User" });
-                            } else {
-                                const params2 = {
-                                    TableName: 'PhoneNumbers',
-                                    Item: { telephone: req.body.phoneNumber, email: req.body.email }
-                                };
-                                docClient.put(params2, function (err2: any, data2: any) {
-                                    if (err2) {
-
-                                        //console.log(err2);
-                                    }
-                                });
-                                res.statusCode = 200;
-                                // res.send({ status: 'User Added Successfully' });
-                                const tokenStuff = {
-                                    email: req.body.email,
-                                    phoneNumber: req.body.phoneNumber,
-                                    username: req.body.username,
-                                    isRegistered: req.body.isRegistered,
-                                    isSelected: false,
-                                    // publicKey: req.body.publicKey
-                                };
-                                var token = jwt.sign(tokenStuff, process.env.SECRET);
-                                //console.log(token)
-                                res.send({ token: token });
-                            }
-                        });
-
+            firebase.database().ref(`users/${hashEmail(req.body.email)}`)
+                .set(req.body, (err) => {
+                    if (!err) {
+                        firebase.database().ref(`phoneNumbers/${req.body.phoneNumber}`)
+                            .set(true, (err1) => {
+                                if (!err1) {
+                                    res.statusCode = 200;
+                                    // res.send({ status: 'User Added Successfully' });
+                                    const tokenStuff = {
+                                        email: req.body.email,
+                                        phoneNumber: req.body.phoneNumber,
+                                        username: req.body.username,
+                                        isRegistered: req.body.isRegistered,
+                                        isSelected: false,
+                                        publicKey: req.body.publicKey
+                                    };
+                                    var token = jwt.sign(tokenStuff, process.env.SECRET);
+                                    //console.log(token)
+                                    return res.send({ token: token });
+                                } else {
+                                    res.statusCode = 500;
+                                    return res.send({ status: "DB Crashed While Adding New User" });
+                                }
+                            })
                     } else {
-                        res.statusCode = 201;
-                        res.send({ status: "Email Address is Already Registered" });
+                        res.statusCode = 500;
+                        return res.send({ status: "DB Crashed While Adding New User" });
                     }
-                }
-            })
+                })
+
 
         }
-        public GetUser(req: Request, res: Response, next: NextFunction) {
+        public async GetUser(req: Request, res: Response, next: NextFunction) {
 
             var params = {
                 TableName: "Users",
@@ -218,150 +197,230 @@ export namespace userController {
                     "email": req.body.email
                 }
             };
-            docClient.get(params, function (err: any, data: any) {
-                if (err) {
-                    res.statusCode = 500;
-                    res.send({ status: 'DB Crash' });
-                }
-                else if (JSON.stringify(data.Item, null, 2) == null) {
-                    res.statusCode = 202;
-                    res.send({ status: 'User not found' });
-                } else {
-                    //console.log(data.Item);
-                    const userSecretKey = decyrptSecret(data.Item.encryptedSecret, req.body.password);
 
-                    //console.log(userSecretKey);
-                    if (userSecretKey != null && userSecretKey.length >= 5) {
-                        const publicKey = Keypair.fromSecret(userSecretKey).publicKey();
 
-                        if (data.Item.publicKey === publicKey) {
-                            // login sucesss
-                            let isSelected = false;
-                            if (data.Item.isSelected) {
-                                isSelected = data.Item.isSelected;
-                            }
+            const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email)}`).once('value');
 
-                            res.statusCode = 201;
-                            const tokenStuff = {
-                                email: data.Item.email,
-                                phoneNumber: data.Item.phoneNumber,
-                                username: data.Item.username,
-                                isRegistered: data.Item.isRegistered,
-                                // publicKey: data.Item.publicKey,
-                                isSelected: isSelected
-                            };
-                            var token = jwt.sign(tokenStuff, process.env.SECRET);
-                            //console.log(token)
-                            res.send({ token: token });
+            console.log(snapshot.val())
+            if (snapshot.val() == null) {
+                res.statusCode = 202;
+                return res.send({ status: 'User not found' });
+            } else {
+                const user = snapshot.val()
+                //console.log(data.Item);
+                const userSecretKey = decyrptSecret(user.encryptedSecret, req.body.password);
 
-                        } else {
-                            //console.log('failed');
-                            res.statusCode = 203;
-                            res.send({ status: 'login failed' });
+                //console.log(userSecretKey);
+                if (userSecretKey != null && userSecretKey.length >= 5) {
+                    const publicKey = Keypair.fromSecret(userSecretKey).publicKey();
+
+                    if (user.publicKey === publicKey) {
+                        // login sucesss
+                        let isSelected = false;
+                        if (user.isSelected) {
+                            isSelected = user.isSelected;
                         }
-                    } else {
-                        //console.log('this failed');
 
+                        res.statusCode = 201;
+                        const tokenStuff = {
+                            email: user.email,
+                            phoneNumber: user.phoneNumber,
+                            username: user.username,
+                            isRegistered: user.isRegistered,
+                            publicKey: user.publicKey,
+                            isSelected: isSelected
+                        };
+                        var token = jwt.sign(tokenStuff, process.env.SECRET);
+                        //console.log(token)
+                        res.send({ token: token });
+
+                    } else {
+                        //console.log('failed');
                         res.statusCode = 203;
                         res.send({ status: 'login failed' });
                     }
-                }
+                } else {
+                    //console.log('this failed');
 
-            })
+                    res.statusCode = 203;
+                    res.send({ status: 'login failed' });
+                }
+            }
+
+            // docClient.get(params, function (err: any, data: any) {
+            //     if (err) {
+            //         res.statusCode = 500;
+            //         res.send({ status: 'DB Crash' });
+            //     }
+            //     else if (JSON.stringify(data.Item, null, 2) == null) {
+            //         res.statusCode = 202;
+            //         res.send({ status: 'User not found' });
+            //     } else {
+            //         //console.log(data.Item);
+            //         const userSecretKey = decyrptSecret(data.Item.encryptedSecret, req.body.password);
+
+            //         //console.log(userSecretKey);
+            //         if (userSecretKey != null && userSecretKey.length >= 5) {
+            //             const publicKey = Keypair.fromSecret(userSecretKey).publicKey();
+
+            //             if (data.Item.publicKey === publicKey) {
+            //                 // login sucesss
+            //                 let isSelected = false;
+            //                 if (data.Item.isSelected) {
+            //                     isSelected = data.Item.isSelected;
+            //                 }
+
+            //                 res.statusCode = 201;
+            //                 const tokenStuff = {
+            //                     email: data.Item.email,
+            //                     phoneNumber: data.Item.phoneNumber,
+            //                     username: data.Item.username,
+            //                     isRegistered: data.Item.isRegistered,
+            //                     // publicKey: data.Item.publicKey,
+            //                     isSelected: isSelected
+            //                 };
+            //                 var token = jwt.sign(tokenStuff, process.env.SECRET);
+            //                 //console.log(token)
+            //                 res.send({ token: token });
+
+            //             } else {
+            //                 //console.log('failed');
+            //                 res.statusCode = 203;
+            //                 res.send({ status: 'login failed' });
+            //             }
+            //         } else {
+            //             //console.log('this failed');
+
+            //             res.statusCode = 203;
+            //             res.send({ status: 'login failed' });
+            //         }
+            //     }
+
+            // })
+
+
+
+
+
+
 
         }
-        public EmailAvailability(req: Request, res: Response, next: NextFunction) {
+        public async EmailAvailability(req: Request, res: Response, next: NextFunction) {
             //first retrieve to check for dulicates
-            var paramsG = {
-                TableName: "Users",
-                Key: {
-                    "email": req.body.email
-                }
-            };
-            //console.log(paramsG);
+            // var paramsG = {
+            //     TableName: "Users",
+            //     Key: {
+            //         "email": req.body.email
+            //     }
+            // };
+            // //console.log(paramsG);
 
-            docClient.get(paramsG, function (err: any, data: any) {
-                if (err) {
-                    //console.log(err)
-                    res.statusCode = 501;
-                    res.send({ status: "DB Crashed while checking whether the user object exists" });
-                }
-                else {
-                    if (JSON.stringify(data.Item, null, 2) == null) {
-                        res.statusCode = 200;
-                        res.send({ available: true });
+            // docClient.get(paramsG, function (err: any, data: any) {
+            //     if (err) {
+            //         //console.log(err)
+            //         res.statusCode = 501;
+            //         res.send({ status: "DB Crashed while checking whether the user object exists" });
+            //     }
+            //     else {
+            //         if (JSON.stringify(data.Item, null, 2) == null) {
+            //             res.statusCode = 200;
+            //             res.send({ available: true });
 
-                    } else {
-                        res.statusCode = 200;
-                        res.send({ available: false });
-                    }
-                }
-            })
+            //         } else {
+            //             res.statusCode = 200;
+            //             res.send({ available: false });
+            //         }
+            //     }
+            // })
+
+            const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email)}`).once('value');
+
+            console.log(snapshot.val())
+            if (snapshot.val() != null) {
+                res.statusCode = 200;
+                return res.send({ available: false });
+            }
+
+            res.statusCode = 200;
+            return res.send({ available: true });
 
         }
-        public MobileNumberAvailability(req: Request, res: Response, next: NextFunction) {
+        public async MobileNumberAvailability(req: Request, res: Response, next: NextFunction) {
             //first retrieve to check for dulicates
-            var paramsG = {
-                TableName: "PhoneNumbers",
-                Key: {
-                    "telephone": req.body.phoneNumber
-                }
-            };
+            // var paramsG = {
+            //     TableName: "PhoneNumbers",
+            //     Key: {
+            //         "telephone": req.body.phoneNumber
+            //     }
+            // };
             //console.log(paramsG);
 
-            docClient.get(paramsG, function (err: any, data: any) {
-                if (err) {
-                    //console.log(err)
+            // docClient.get(paramsG, function (err: any, data: any) {
+            //     if (err) {
+            //         //console.log(err)
 
-                    res.statusCode = 501;
-                    res.send({ status: "DB Crashed while checking whether the user object exists" });
-                }
-                else {
-                    if (JSON.stringify(data.Item, null, 2) == null) {
-                        res.statusCode = 200;
-                        res.send({ available: true });
+            //         res.statusCode = 501;
+            //         res.send({ status: "DB Crashed while checking whether the user object exists" });
+            //     }
+            //     else {
+            //         if (JSON.stringify(data.Item, null, 2) == null) {
+            //             res.statusCode = 200;
+            //             res.send({ available: true });
 
-                    } else {
-                        res.statusCode = 200;
-                        res.send({ available: false });
-                    }
-                }
-            })
+            //         } else {
+            //             res.statusCode = 200;
+            //             res.send({ available: false });
+            //         }
+            //     }
+            // })
+
+            const snapshot = await firebase.database().ref(`phoneNumbers/${req.body.phoneNumber}`).once('value');
+
+            console.log(snapshot.val())
+            if (snapshot.val() != null) {
+                res.statusCode = 200;
+                return res.send({ available: false });
+            }
+
+            res.statusCode = 200;
+            return res.send({ available: true });
 
         }
 
         public CheckUserAddressPresence(req: Request, res: Response, next: NextFunction) {
             //first retrieve to check for dulicates
-            var paramsG = {
-                TableName: "Forms",
-                Key: {
-                    "email": req.body.email
-                }
-            };
+            // var paramsG = {
+            //     TableName: "Forms",
+            //     Key: {
+            //         "email": req.body.email
+            //     }
+            // };
             //console.log(paramsG);
 
-            docClient.get(paramsG, function (err: any, data: any) {
-                if (err) {
-                    //console.log(err)
-                    res.statusCode = 501;
-                    res.send({ status: "DB Crashed while checking whether the user object exists" });
-                }
-                else {
-                    if (JSON.stringify(data.Item, null, 2) == null) {
-                        res.statusCode = 200;
-                        res.send({ present: false });
-                    } else {
-                        if (data.Item.address && data.Item.address != "") {
-                            res.statusCode = 200;
-                            res.send({ present: true });
-                        } else {
-                            res.statusCode = 200;
-                            res.send({ present: false });
-                        }
+            // docClient.get(paramsG, function (err: any, data: any) {
+            //     if (err) {
+            //         //console.log(err)
+            //         res.statusCode = 501;
+            //         res.send({ status: "DB Crashed while checking whether the user object exists" });
+            //     }
+            //     else {
+            //         if (JSON.stringify(data.Item, null, 2) == null) {
+            //             res.statusCode = 200;
+            //             res.send({ present: false });
+            //         } else {
+            //             if (data.Item.address && data.Item.address != "") {
+            //                 res.statusCode = 200;
+            //                 res.send({ present: true });
+            //             } else {
+            //                 res.statusCode = 200;
+            //                 res.send({ present: false });
+            //             }
 
-                    }
-                }
-            })
+            //         }
+            //     }
+            // })
+            res.statusCode = 200;
+            res.send({ present: false });
 
         }
 
