@@ -12,6 +12,11 @@ ticketRouter.post("/signTicket", (req: Request, res: Response, next: NextFunctio
 });
 
 
+ticketRouter.post("/approve", (req: Request, res: Response, next: NextFunction) => {
+    const controller = new ticketController.ticketData;
+    controller.approveUserTicket(req, res, next);
+
+});
 
 
 export { ticketRouter };

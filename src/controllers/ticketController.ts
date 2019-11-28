@@ -12,7 +12,7 @@ export namespace ticketController {
         public signUserTicket(req: Request, res: Response, next: NextFunction) {
             // var userId = firebase.auth().currentUser.uid;
             //console.log(req.body);
-            const sourceKeypair = Keypair.fromSecret('SBVB4S5BUNUNRLMBF7LJC6DQAAGCPHD6KASBJYVNL4SXARAQYMFWA6LB');
+            const sourceKeypair = Keypair.fromSecret('SBMABJKOYXXHIMZMK6QUQO477SX2RKHETMFAFWAMM2GJY6LVP7OMSYR5');
 
             var obj = {
                 //@ts-ignore
@@ -73,6 +73,27 @@ export namespace ticketController {
             }
 
 
+        }
+
+        public approveUserTicket(req: Request, res: Response, next: NextFunction) {
+            var obj = {
+                //@ts-ignore
+                'status': '205',
+                //@ts-ignore
+                'statusText': 'Error in request body',
+            };
+            firebase.database().ref(`/tickets/${req.body.ticketID}`)
+                .update({
+                    status: 'approved',
+                    ticketCount: -1
+                }).then(() => {
+                    obj.status = '201';
+                    obj.statusText = 'Success';
+                    res.send(obj);
+                }).catch(() => {
+                    res.send(obj);
+
+                })
         }
     }
 }

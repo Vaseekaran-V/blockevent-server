@@ -26,23 +26,23 @@ userRouter.post("/add", (req: Request, res: Response, next: NextFunction) => {
             pin: req.body.pin,
             serverRef: req.body.serverRef
         }, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer a34edf99db05d1f1ead4423d4992ce9',
-                'Accept': 'application/json'
-            }
-        }).then(resp => {
-            const controller = new userController.UserData;
-            controller.AddUser(req, res, next);
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer a34edf99db05d1f1ead4423d4992ce9',
+            'Accept': 'application/json'
+        }
+    }).then(resp => {
+        const controller = new userController.UserData;
+        controller.AddUser(req, res, next);
 
-        }).catch(err => {
-            var obj = {
-                status: 'verifying token failed'
-            }
-            //console.log(obj);
-            res.statusCode = 206;
-            res.send(obj);
-        });
+    }).catch(err => {
+        var obj = {
+            status: 'verifying token failed'
+        }
+        //console.log(obj);
+        res.statusCode = 206;
+        res.send(obj);
+    });
 
 });
 
@@ -64,7 +64,11 @@ userRouter.post("/login", (req: Request, res: Response, next: NextFunction) => {
     controller.GetUser(req, res, next);
 });
 
+userRouter.post("/getDetails", auth, (req: Request, res: Response, next: NextFunction) => {
 
+    const controller = new userController.UserData;
+    controller.GetUserDetails(req, res, next);
+});
 userRouter.post("/checkAvailability/", (req: Request, res: Response, next: NextFunction) => {
     const controller = new userController.UserData;
     controller.EmailAvailability(req, res, next);

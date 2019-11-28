@@ -102,22 +102,22 @@ export namespace userController {
                     method: 'ANC',
                     msisdn: req.body.telephone
                 }, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer a34edf99db05d1f1ead4423d4992ce9',
-                        'Accept': 'application/json'
-                    }
-                }).then(response => {
-                    // //console.log(response.data);
-                    res.send(response.data);
-                }).catch(err => {
-                    var obj = {
-                        status: 'sending token failed'
-                    }
-                    //console.log(obj);
-                    res.statusCode = 400;
-                    res.send(obj);
-                });
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer a34edf99db05d1f1ead4423d4992ce9',
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                // //console.log(response.data);
+                res.send(response.data);
+            }).catch(err => {
+                var obj = {
+                    status: 'sending token failed'
+                }
+                //console.log(obj);
+                res.statusCode = 400;
+                res.send(obj);
+            });
 
         }
         public verifySMSToken(req: Request, res: Response, next: NextFunction) {
@@ -127,29 +127,30 @@ export namespace userController {
                     pin: req.body.pin,
                     serverRef: req.body.serverRef
                 }, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer a34edf99db05d1f1ead4423d4992ce9',
-                        'Accept': 'application/json'
-                    }
-                }).then(response => {
-                    // //console.log(response.data);
-                    res.send(response.data);
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer a34edf99db05d1f1ead4423d4992ce9',
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                // //console.log(response.data);
+                res.send(response.data);
 
-                }).catch(err => {
-                    var obj = {
-                        status: 'verifying token failed'
-                    }
-                    //console.log(obj);
-                    res.statusCode = 400;
-                    res.send(obj);
-                });
+            }).catch(err => {
+                var obj = {
+                    status: 'verifying token failed'
+                }
+                //console.log(obj);
+                res.statusCode = 400;
+                res.send(obj);
+            });
 
 
         }
         public async AddUser(req: Request, res: Response, next: NextFunction) {
 
-            const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email)}`).once('value');
+
+            const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email.toLowerCase())}`).once('value');
 
             console.log(snapshot.val())
             if (snapshot.val() != null) {
@@ -157,7 +158,7 @@ export namespace userController {
                 return res.send({ status: 'User Already Exists' });
             }
 
-            firebase.database().ref(`users/${hashEmail(req.body.email)}`)
+            firebase.database().ref(`users/${hashEmail(req.body.email.toLowerCase())}`)
                 .set(req.body, (err) => {
                     if (!err) {
                         firebase.database().ref(`phoneNumbers/${req.body.phoneNumber}`)
@@ -171,7 +172,9 @@ export namespace userController {
                                         username: req.body.username,
                                         isRegistered: req.body.isRegistered,
                                         isSelected: false,
-                                        publicKey: req.body.publicKey
+                                        publicKey: req.body.publicKey,
+                                        encryptedSecret: req.body.encryptedSecret
+
                                     };
                                     var token = jwt.sign(tokenStuff, process.env.SECRET);
                                     //console.log(token)
@@ -199,7 +202,7 @@ export namespace userController {
             };
 
 
-            const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email)}`).once('value');
+            const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email.toLowerCase())}`).once('value');
 
             console.log(snapshot.val())
             if (snapshot.val() == null) {
@@ -228,7 +231,8 @@ export namespace userController {
                             username: user.username,
                             isRegistered: user.isRegistered,
                             publicKey: user.publicKey,
-                            isSelected: isSelected
+                            isSelected: isSelected,
+                            encryptedSecret: user.encryptedSecret
                         };
                         var token = jwt.sign(tokenStuff, process.env.SECRET);
                         //console.log(token)
@@ -305,6 +309,20 @@ export namespace userController {
 
 
         }
+
+        public async GetUserDetails(req: Request, res: Response, next: NextFunction) {
+
+            const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email.toLowerCase())}`).once('value');
+            if (snapshot.val() == null) {
+                res.statusCode = 202;
+                return res.send({ status: 'User not found' });
+            } else {
+                const user = snapshot.val()
+                res.statusCode = 200;
+                res.send(user);
+            }
+
+        }
         public async EmailAvailability(req: Request, res: Response, next: NextFunction) {
             //first retrieve to check for dulicates
             // var paramsG = {
@@ -333,7 +351,7 @@ export namespace userController {
             //     }
             // })
 
-            const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email)}`).once('value');
+            const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email.toLowerCase())}`).once('value');
 
             console.log(snapshot.val())
             if (snapshot.val() != null) {
