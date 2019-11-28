@@ -4,7 +4,8 @@
   "description": "Tickety backend",
   "main": "index.ts",
   "engines": {
-    "node": "12.13.0"
+    "node": "10.16.3",
+    "npm": "6.9.0"
   },
   "scripts": {
     "start": "npm run build && node ./dist/index.js",
