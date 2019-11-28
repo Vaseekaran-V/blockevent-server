@@ -45,6 +45,7 @@ let docClient = new AWS.DynamoDB.DocumentClient();
 export namespace userController {
     export class UserData {
 
+        private STELLAT_FRIEND_BOT_URL = `https://friendbot.stellar.org/?addr=`;
 
         public getUserGitHub(req: Request, res: Response, next: NextFunction) {
             axios.get(`https://api.github.com/users/${req.params.gitID}`, {
@@ -190,6 +191,8 @@ export namespace userController {
 
 
         }
+
+
         public async GetUser(req: Request, res: Response, next: NextFunction) {
 
             // var params = {
@@ -199,13 +202,83 @@ export namespace userController {
             //     }
             // };
 
-
             const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email.toLowerCase())}`).once('value');
 
             console.log(snapshot.val())
             if (snapshot.val() == null) {
-                res.statusCode = 202;
-                return res.send({ status: 'User not found' });
+                // to check for legacy users
+                const snapshot2 = await firebase.database().ref(`legacies/${hashEmail(req.body.email.toLowerCase())}`).once('value');
+                if (snapshot2.val() == null) {
+                    res.statusCode = 202;
+                    return res.send({ status: 'User not found' });
+                } else {
+
+                    const oldUser = snapshot2.val();
+
+                    const pair = await this.createAddress();
+                    let encSecret;
+                    let publicK;
+                    if (pair == null) {
+                        // this error has been omitted in case the blockchain friendbot fails
+                        // return this.createResponse(false, `Error in creating Key Pair`, null);
+                        encSecret = '';
+                        publicK = '';
+                    } else {
+                        encSecret = this.encyrptSecret(pair.secret, oldUser.pash);
+                        publicK = pair.publicKey;
+                    }
+
+                    oldUser.encryptedSecret = encSecret;
+                    oldUser.publicKey = publicK;
+
+
+                    firebase.database().ref(`users/${hashEmail(oldUser.email.toLowerCase())}`)
+                        .set(oldUser, (err) => {
+                            if (!err) {
+                                const userSecretKey = decyrptSecret(oldUser.encryptedSecret, req.body.password);
+
+                                //console.log(userSecretKey);
+                                if (userSecretKey != null && userSecretKey.length >= 5) {
+                                    const publicKey = Keypair.fromSecret(userSecretKey).publicKey();
+
+                                    if (oldUser.publicKey == publicKey) {
+                                        // // login sucesss
+                                        // let isSelected = false;
+                                        // if (user.isSelected) {
+                                        //     isSelected = user.isSelected;
+                                        // }
+
+                                        res.statusCode = 201;
+                                        const tokenStuff = {
+                                            email: oldUser.email,
+                                            phoneNumber: oldUser.phoneNumber,
+                                            username: oldUser.username,
+                                            publicKey: oldUser.publicKey,
+                                            events: oldUser.events,
+                                            encryptedSecret: oldUser.encryptedSecret
+                                        };
+                                        var token = jwt.sign(tokenStuff, process.env.SECRET);
+                                        //console.log(token)
+                                        res.send({ token: token });
+
+                                    } else {
+                                        //console.log('failed');
+                                        res.statusCode = 203;
+                                        res.send({ status: 'login failed' });
+                                    }
+                                } else {
+                                    //console.log('this failed');
+
+                                    res.statusCode = 203;
+                                    res.send({ status: 'login failed' });
+                                }
+                            } else {
+                                res.statusCode = 500;
+                                return res.send({ status: "DB Crashed While Updating Legacy User" });
+                            }
+                        })
+                }
+
             } else {
                 const user = snapshot.val()
                 //console.log(data.Item);
@@ -305,6 +378,41 @@ export namespace userController {
 
 
 
+        }
+
+
+        async createAddress() {
+            try {
+                const pair = Keypair.random();
+
+                let secret = pair.secret();
+
+                let publicKey = pair.publicKey();
+                // //console.log(secret);
+                // //console.log(publicKey);
+
+                const stellarResponse = await axios.get(`${this.STELLAT_FRIEND_BOT_URL}${publicKey}`);
+
+                // //console.log(stellarResponse);
+
+                if (stellarResponse.status == 200) {
+                    return { secret, publicKey };
+                } else {
+                    // return null;
+
+                    secret = 'SCQVG3XZF5YIKL767KE7NP2QTHFSPAEV437375TB3GX5BXCDVNIU33DH';
+                    publicKey = 'GBCOYU3BSZ6CD77B3NGJGOQCGC7N5YYCSENORU5NM2FEYGAKHZUZK4OY';
+                    return { secret, publicKey };
+
+
+                }
+            } catch (error) {
+                // //console.log(error);
+                // return null;
+                const secret = 'SCQVG3XZF5YIKL767KE7NP2QTHFSPAEV437375TB3GX5BXCDVNIU33DH';
+                const publicKey = 'GBCOYU3BSZ6CD77B3NGJGOQCGC7N5YYCSENORU5NM2FEYGAKHZUZK4OY';
+                return { secret, publicKey };
+            }
         }
 
         public async GetUserDetails(req: Request, res: Response, next: NextFunction) {
@@ -477,5 +585,21 @@ export namespace userController {
 
 
         }
+
+
+        encyrptSecret(secret: any, signer: any) {
+            try {
+                const ciphertext = AES.encrypt(secret, signer);
+
+                // //console.log('secret => ' + secret);
+                // //console.log('signer => ' + signer);
+                // //console.log('ciphertext => ' + ciphertext);
+                return ciphertext.toString();
+            } catch (error) {
+                // //console.log(error);
+                return null;
+            }
+        }
+
     }
 }
