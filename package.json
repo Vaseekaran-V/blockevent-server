@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Tickety backend",
   "main": "index.ts",
+  "engines": {
+    "node": "12.13.0"
+  },
   "scripts": {
     "start": "npm run build && node ./dist/index.js",
     "build": "npm run build-ts",
