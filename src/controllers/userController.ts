@@ -170,8 +170,6 @@ export namespace userController {
                                         email: req.body.email,
                                         phoneNumber: req.body.phoneNumber,
                                         username: req.body.username,
-                                        isRegistered: req.body.isRegistered,
-                                        isSelected: false,
                                         publicKey: req.body.publicKey,
                                         encryptedSecret: req.body.encryptedSecret
 
@@ -194,12 +192,12 @@ export namespace userController {
         }
         public async GetUser(req: Request, res: Response, next: NextFunction) {
 
-            var params = {
-                TableName: "Users",
-                Key: {
-                    "email": req.body.email
-                }
-            };
+            // var params = {
+            //     TableName: "Users",
+            //     Key: {
+            //         "email": req.body.email
+            //     }
+            // };
 
 
             const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email.toLowerCase())}`).once('value');
@@ -218,22 +216,19 @@ export namespace userController {
                     const publicKey = Keypair.fromSecret(userSecretKey).publicKey();
 
                     if (user.publicKey === publicKey) {
-                        // login sucesss
-                        let isSelected = false;
-                        if (user.isSelected) {
-                            isSelected = user.isSelected;
-                        }
+                        // // login sucesss
+                        // let isSelected = false;
+                        // if (user.isSelected) {
+                        //     isSelected = user.isSelected;
+                        // }
 
                         res.statusCode = 201;
                         const tokenStuff = {
                             email: user.email,
                             phoneNumber: user.phoneNumber,
                             username: user.username,
-                            isRegistered: user.isRegistered,
                             publicKey: user.publicKey,
                             events: user.events,
-                            isSelected: isSelected,
-
                             encryptedSecret: user.encryptedSecret
                         };
                         var token = jwt.sign(tokenStuff, process.env.SECRET);
@@ -320,8 +315,16 @@ export namespace userController {
                 return res.send({ status: 'User not found' });
             } else {
                 const user = snapshot.val()
+                const tokenStuff = {
+                    email: user.email,
+                    phoneNumber: user.phoneNumber,
+                    username: user.username,
+                    publicKey: user.publicKey,
+                    events: user.events,
+                    encryptedSecret: user.encryptedSecret
+                };
                 res.statusCode = 200;
-                res.send(user);
+                res.send(tokenStuff);
             }
 
         }

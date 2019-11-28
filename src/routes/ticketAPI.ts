@@ -23,4 +23,9 @@ ticketRouter.post("/getDetails", (req: Request, res: Response, next: NextFunctio
     controller.getTicketDetails(req, res, next);
 
 });
+ticketRouter.post("/ticketsForEvent", (req: Request, res: Response, next: NextFunction) => {
+    const controller = new ticketController.ticketData;
+    controller.getTicketsForEvent(req, res, next);
+
+});
 export { ticketRouter };

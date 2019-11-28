@@ -112,8 +112,43 @@ export namespace ticketController {
                 return res.send({ status: 'ticket not found' });
             } else {
                 res.statusCode = 200;
-                return res.send(snapshot.val() );
+                return res.send(snapshot.val());
             }
+        }
+        public async getTicketsForEvent(req: Request, res: Response, next: NextFunction) {
+            var obj = {
+                //@ts-ignore
+                'status': '205',
+                //@ts-ignore
+                'statusText': 'Error in request body',
+            };
+
+            const ticketsSnap = await firebase.database().ref(`tickets/`)
+            .orderByChild('eventID').equalTo(req.body.eventID).once('value');
+            const ticketObject = ticketsSnap.val();
+            if (ticketObject) {
+                const arr = [];
+                // tslint:disable-next-line:forin
+                for (const key in ticketObject) {
+                    ticketObject[key].ticketID = key;
+                    arr.push(ticketObject[key]);
+                }
+                res.statusCode = 200;
+                return res.send(arr);
+            } else {
+                res.statusCode = 202;
+                return res.send(null);
+            }
+            // const snapshot = await firebase.database().ref(`tickets/${req.body.ticketID}`).once('value');
+
+            // console.log(snapshot.val())
+            // if (snapshot.val() == null) {
+            //     res.statusCode = 202;
+            //     return res.send({ status: 'ticket not found' });
+            // } else {
+            //     res.statusCode = 200;
+            //     return res.send(snapshot.val());
+            // }
         }
     }
 }
