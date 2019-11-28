@@ -231,7 +231,9 @@ export namespace userController {
                             username: user.username,
                             isRegistered: user.isRegistered,
                             publicKey: user.publicKey,
+                            events: user.events,
                             isSelected: isSelected,
+
                             encryptedSecret: user.encryptedSecret
                         };
                         var token = jwt.sign(tokenStuff, process.env.SECRET);

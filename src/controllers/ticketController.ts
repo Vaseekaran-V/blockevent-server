@@ -95,5 +95,25 @@ export namespace ticketController {
 
                 })
         }
+
+        public async getTicketDetails(req: Request, res: Response, next: NextFunction) {
+            var obj = {
+                //@ts-ignore
+                'status': '205',
+                //@ts-ignore
+                'statusText': 'Error in request body',
+            };
+
+            const snapshot = await firebase.database().ref(`tickets/${req.body.ticketID}`).once('value');
+
+            console.log(snapshot.val())
+            if (snapshot.val() == null) {
+                res.statusCode = 202;
+                return res.send({ status: 'ticket not found' });
+            } else {
+                res.statusCode = 200;
+                return res.send(snapshot.val() );
+            }
+        }
     }
 }

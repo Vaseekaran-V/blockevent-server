@@ -18,5 +18,9 @@ ticketRouter.post("/approve", (req: Request, res: Response, next: NextFunction) 
 
 });
 
+ticketRouter.post("/getDetails", (req: Request, res: Response, next: NextFunction) => {
+    const controller = new ticketController.ticketData;
+    controller.getTicketDetails(req, res, next);
 
+});
 export { ticketRouter };
