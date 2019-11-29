@@ -160,7 +160,7 @@ export namespace userController {
                     res.statusCode = 201;
                     return res.send({ status: 'User Already Exists' });
                 }
-              
+
             }
 
             firebase.database().ref(`users/${hashEmail(req.body.email.toLowerCase())}`)
@@ -472,8 +472,11 @@ export namespace userController {
 
             console.log(snapshot.val())
             if (snapshot.val() != null) {
-                res.statusCode = 200;
-                return res.send({ available: false });
+                const snapshot2 = await firebase.database().ref(`legacies/${hashEmail(req.body.email.toLowerCase())}`).once('value');
+                if (snapshot2.val() != null) {
+                    res.statusCode = 200;
+                    return res.send({ available: false });
+                }
             }
 
             res.statusCode = 200;
@@ -513,8 +516,11 @@ export namespace userController {
 
             console.log(snapshot.val())
             if (snapshot.val() != null) {
-                res.statusCode = 200;
-                return res.send({ available: false });
+                const snapshot2 = await firebase.database().ref(`legacies/${hashEmail(req.body.email.toLowerCase())}`).once('value');
+                if (snapshot2.val() != null) {
+                    res.statusCode = 200;
+                    return res.send({ available: false });
+                }
             }
 
             res.statusCode = 200;
