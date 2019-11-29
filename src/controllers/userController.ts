@@ -155,8 +155,12 @@ export namespace userController {
 
             console.log(snapshot.val())
             if (snapshot.val() != null) {
-                res.statusCode = 201;
-                return res.send({ status: 'User Already Exists' });
+                const snapshot2 = await firebase.database().ref(`legacies/${hashEmail(req.body.email.toLowerCase())}`).once('value');
+                if (snapshot2.val() != null) {
+                    res.statusCode = 201;
+                    return res.send({ status: 'User Already Exists' });
+                }
+              
             }
 
             firebase.database().ref(`users/${hashEmail(req.body.email.toLowerCase())}`)
