@@ -112,6 +112,7 @@ export namespace userController {
                 // //console.log(response.data);
                 res.send(response.data);
             }).catch(err => {
+                // console.log(err)
                 var obj = {
                     status: 'sending token failed'
                 }
@@ -196,7 +197,41 @@ export namespace userController {
 
         }
 
+        public async UpdateUser(req: Request, res: Response, next: NextFunction) {
 
+
+            firebase.database().ref(`users/${hashEmail(req.body.email.toLowerCase())}`)
+                .set(req.body, (err) => {
+                    if (!err) {
+                        firebase.database().ref(`phoneNumbers/${req.body.phoneNumber}`)
+                            .set(true, (err1) => {
+                                if (!err1) {
+                                    res.statusCode = 200;
+                                    // res.send({ status: 'User Added Successfully' });
+                                    const tokenStuff = {
+                                        email: req.body.email,
+                                        phoneNumber: req.body.phoneNumber,
+                                        username: req.body.username,
+                                        publicKey: req.body.publicKey,
+                                        encryptedSecret: req.body.encryptedSecret
+
+                                    };
+                                    var token = jwt.sign(tokenStuff, process.env.SECRET);
+                                    //console.log(token)
+                                    return res.send({ token: token });
+                                } else {
+                                    res.statusCode = 500;
+                                    return res.send({ status: "DB Crashed While Adding New User" });
+                                }
+                            })
+                    } else {
+                        res.statusCode = 500;
+                        return res.send({ status: "DB Crashed While Adding New User" });
+                    }
+                })
+
+
+        }
         public async GetUser(req: Request, res: Response, next: NextFunction) {
 
             // var params = {
@@ -483,6 +518,31 @@ export namespace userController {
             return res.send({ available: true });
 
         }
+
+        public async MobileForEmail(req: Request, res: Response, next: NextFunction) {
+            const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email.toLowerCase())}`).once('value');
+
+            if (snapshot.val() == null) {
+                const snapshot2 = await firebase.database().ref(`legacies/${hashEmail(req.body.email.toLowerCase())}`).once('value');
+                if (snapshot2.val() != null) {
+                    res.statusCode = 200;
+                    return res.send({
+                        phoneNumber: (snapshot2.val()).phoneNumber,
+                        username: (snapshot2.val()).username
+                    });
+                }
+            } else {
+                res.statusCode = 200;
+                return res.send({
+                    phoneNumber: (snapshot.val()).phoneNumber,
+                    username: (snapshot.val()).username
+                });
+            }
+
+            res.statusCode = 200;
+            return res.send(null);
+
+        }
         public async MobileNumberAvailability(req: Request, res: Response, next: NextFunction) {
             //first retrieve to check for dulicates
             // var paramsG = {
@@ -516,11 +576,10 @@ export namespace userController {
 
             console.log(snapshot.val())
             if (snapshot.val() != null) {
-                const snapshot2 = await firebase.database().ref(`legacies/${hashEmail(req.body.email.toLowerCase())}`).once('value');
-                if (snapshot2.val() != null) {
-                    res.statusCode = 200;
-                    return res.send({ available: false });
-                }
+
+                res.statusCode = 200;
+                return res.send({ available: false });
+
             }
 
             res.statusCode = 200;

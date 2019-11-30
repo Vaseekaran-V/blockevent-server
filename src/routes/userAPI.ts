@@ -46,6 +46,33 @@ userRouter.post("/add", (req: Request, res: Response, next: NextFunction) => {
 
 });
 
+userRouter.post("/update", (req: Request, res: Response, next: NextFunction) => {
+
+    axios.post('https://ideabiz.lk/apicall/pin/verify/v1/submitPin',
+        {
+            pin: req.body.pin,
+            serverRef: req.body.serverRef
+        }, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer a34edf99db05d1f1ead4423d4992ce9',
+            'Accept': 'application/json'
+        }
+    }).then(resp => {
+        const controller = new userController.UserData;
+        controller.UpdateUser(req, res, next);
+
+    }).catch(err => {
+        var obj = {
+            status: 'verifying token failed'
+        }
+        //console.log(obj);
+        res.statusCode = 206;
+        res.send(obj);
+    });
+
+});
+
 userRouter.get("/getStackUserDetails/:stackID", (req: Request, res: Response, next: NextFunction) => {
     const controller = new userController.UserData;
     controller.getUserStack(req, res, next);
@@ -72,6 +99,11 @@ userRouter.post("/getDetails", auth, (req: Request, res: Response, next: NextFun
 userRouter.post("/checkAvailability/", (req: Request, res: Response, next: NextFunction) => {
     const controller = new userController.UserData;
     controller.EmailAvailability(req, res, next);
+});
+
+userRouter.post("/mobileForEmail/", (req: Request, res: Response, next: NextFunction) => {
+    const controller = new userController.UserData;
+    controller.MobileForEmail(req, res, next);
 });
 
 userRouter.post("/checkUserAddressPresence/", (req: Request, res: Response, next: NextFunction) => {
