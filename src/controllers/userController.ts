@@ -303,13 +303,13 @@ export namespace userController {
                                     } else {
                                         //console.log('failed');
                                         res.statusCode = 203;
-                                        res.send({ status: 'login failed' });
+                                        res.send({ status: 'password is incorrect' });
                                     }
                                 } else {
                                     //console.log('this failed');
 
                                     res.statusCode = 203;
-                                    res.send({ status: 'login failed' });
+                                    res.send({ status: 'password is incorrect' });
                                 }
                             } else {
                                 res.statusCode = 500;
@@ -350,13 +350,13 @@ export namespace userController {
                     } else {
                         //console.log('failed');
                         res.statusCode = 203;
-                        res.send({ status: 'login failed' });
+                        res.send({ status: 'password is incorrect' });
                     }
                 } else {
                     //console.log('this failed');
 
                     res.statusCode = 203;
-                    res.send({ status: 'login failed' });
+                    res.send({ status: 'password is incorrect' });
                 }
             }
 
