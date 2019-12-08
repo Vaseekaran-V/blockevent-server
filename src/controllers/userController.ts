@@ -292,7 +292,7 @@ export namespace userController {
 
                                         res.statusCode = 201;
                                         const tokenStuff = {
-                                            access:req.body.access,
+                                            access:oldUser.access,
 
                                             email: oldUser.email,
                                             phoneNumber: oldUser.phoneNumber,
@@ -341,7 +341,7 @@ export namespace userController {
 
                         res.statusCode = 201;
                         const tokenStuff = {
-                            access:req.body.access,
+                            access:user.access,
 
                             email: user.email,
                             phoneNumber: user.phoneNumber,
@@ -470,7 +470,7 @@ export namespace userController {
             } else {
                 const user = snapshot.val()
                 const tokenStuff = {
-                    access:req.body.access,
+                    access:user.access,
 
                     email: user.email,
                     phoneNumber: user.phoneNumber,
