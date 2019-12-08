@@ -508,14 +508,19 @@ export namespace userController {
             console.log(snapshot.val())
             if (snapshot.val() == null) {
                 const snapshot2 = await firebase.database().ref(`legacies/${hashEmail(req.body.email.toLowerCase())}`).once('value');
-                if (snapshot2.val() != null) {
+                if (snapshot2.val() == null) {
+                    res.statusCode = 200;
+                    return res.send({ available: true });
+                } else {
                     res.statusCode = 200;
                     return res.send({ available: false });
                 }
+            } else {
+
+                res.statusCode = 200;
+                return res.send({ available: false });
             }
 
-            res.statusCode = 200;
-            return res.send({ available: true });
 
         }
 
