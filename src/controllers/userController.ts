@@ -506,7 +506,7 @@ export namespace userController {
             const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email.toLowerCase())}`).once('value');
 
             console.log(snapshot.val())
-            if (snapshot.val() != null) {
+            if (snapshot.val() == null) {
                 const snapshot2 = await firebase.database().ref(`legacies/${hashEmail(req.body.email.toLowerCase())}`).once('value');
                 if (snapshot2.val() != null) {
                     res.statusCode = 200;
