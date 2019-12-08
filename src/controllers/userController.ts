@@ -173,6 +173,7 @@ export namespace userController {
                                     res.statusCode = 200;
                                     // res.send({ status: 'User Added Successfully' });
                                     const tokenStuff = {
+                                        access:req.body.access,
                                         email: req.body.email,
                                         phoneNumber: req.body.phoneNumber,
                                         username: req.body.username,
@@ -209,6 +210,8 @@ export namespace userController {
                                     res.statusCode = 200;
                                     // res.send({ status: 'User Added Successfully' });
                                     const tokenStuff = {
+                                        access:req.body.access,
+
                                         email: req.body.email,
                                         phoneNumber: req.body.phoneNumber,
                                         username: req.body.username,
@@ -289,6 +292,8 @@ export namespace userController {
 
                                         res.statusCode = 201;
                                         const tokenStuff = {
+                                            access:req.body.access,
+
                                             email: oldUser.email,
                                             phoneNumber: oldUser.phoneNumber,
                                             username: oldUser.username,
@@ -336,6 +341,8 @@ export namespace userController {
 
                         res.statusCode = 201;
                         const tokenStuff = {
+                            access:req.body.access,
+
                             email: user.email,
                             phoneNumber: user.phoneNumber,
                             username: user.username,
@@ -463,6 +470,8 @@ export namespace userController {
             } else {
                 const user = snapshot.val()
                 const tokenStuff = {
+                    access:req.body.access,
+
                     email: user.email,
                     phoneNumber: user.phoneNumber,
                     username: user.username,
