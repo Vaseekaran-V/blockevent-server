@@ -243,10 +243,9 @@ export namespace userController {
             //         "email": req.body.email
             //     }
             // };
+            console.log(req.body.email)
 
             const snapshot = await firebase.database().ref(`users/${hashEmail(req.body.email.toLowerCase())}`).once('value');
-
-            console.log(snapshot.val())
             if (snapshot.val() == null) {
                 // to check for legacy users
                 const snapshot2 = await firebase.database().ref(`legacies/${hashEmail(req.body.email.toLowerCase())}`).once('value');
@@ -255,7 +254,10 @@ export namespace userController {
                     return res.send({ status: 'User not found' });
                 } else {
 
+
                     const oldUser = snapshot2.val();
+                    console.log(oldUser);
+
 
                     const pair = await this.createAddress();
                     let encSecret;
@@ -302,7 +304,7 @@ export namespace userController {
                                             encryptedSecret: oldUser.encryptedSecret
                                         };
                                         var token = jwt.sign(tokenStuff, process.env.SECRET);
-                                        //console.log(token)
+                                        // console.log(token)
                                         res.send({ token: token });
 
                                     } else {
@@ -325,6 +327,7 @@ export namespace userController {
 
             } else {
                 const user = snapshot.val()
+                console.log(user);
                 //console.log(data.Item);
                 const userSecretKey = decyrptSecret(user.encryptedSecret, req.body.password);
 
@@ -342,7 +345,6 @@ export namespace userController {
                         res.statusCode = 201;
                         const tokenStuff = {
                             access:user.access,
-
                             email: user.email,
                             phoneNumber: user.phoneNumber,
                             username: user.username,
