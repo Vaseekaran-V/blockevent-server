@@ -27,7 +27,7 @@ export namespace ticketController {
                 parsedTx.sign(sourceKeypair)
                 let publicKey = parsedTx.source
                 let x = parsedTx.toEnvelope().toXDR().toString('base64')
-                //console.log(x);
+                console.log(x);
                 // var obj = {
                 //     //@ts-ignore
                 //     'status': '205',
@@ -61,7 +61,7 @@ export namespace ticketController {
 
                             })
                     }).catch(function (err) {
-                        //console.log(err.response);
+                        console.log(err.response);
                         obj.status = '203'
                         obj.statusText = 'Error submitting to Stellar';
                         res.send(obj);
