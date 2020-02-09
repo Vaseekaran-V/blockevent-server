@@ -8,5 +8,5 @@ Blockchain Based Event Registration and Verification Platform!
 - Clone the repo: `git clone https://github.com/Zeemzo/blockevent-server.git`.
 - Enter Directory : `cd blockevent-server`.
 - Install dependencies : `npm install`.
-- Run app: `ng serve`.
-- Build app: `ng build`.
+- Run app: `npm run start`.
+- Build app: `npm run build`.
